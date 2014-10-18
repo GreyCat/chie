@@ -1,0 +1,8 @@
+cache
+cookies.txt
+*.gem
+*~
+
+# This is a gem, so Gemfile.lock should not be checked in
+# http://yehudakatz.com/2010/12/16/clarifying-the-roles-of-the-gemspec-and-gemfile/
+Gemfile.lock
