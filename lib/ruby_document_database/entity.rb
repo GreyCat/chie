@@ -1,6 +1,6 @@
 module RubyDocumentDatabase
   class Entity
-    attr_reader :schema
+    attr_reader :schema, :name
 
     def initialize(db, name, schema)
       @db = db
