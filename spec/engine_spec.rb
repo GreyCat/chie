@@ -55,8 +55,10 @@ describe Engine do
     end
 
     it 'should be able to see newly created entity' do
-      expect(@e.entities['book']).not_to be_nil
-      expect(@e.entities['book'].schema).to eq(SIMPLE_SCHEMA)
+      @e = Engine.new(CREDENTIALS)
+      ent = @e.entities['book']
+      expect(ent).not_to be_nil
+      expect(ent.schema).to eq(SIMPLE_SCHEMA)
     end
   end
 end
