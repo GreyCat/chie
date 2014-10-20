@@ -17,7 +17,7 @@ SIMPLE_SCHEME = [
 describe Entity do
   before(:all) do
     sqlexec(CREDENTIALS, "DROP DATABASE #{CREDENTIALS[:database]}; CREATE DATABASE #{CREDENTIALS[:database]};")
-    @e = Engine::connect_mysql(CREDENTIALS)
+    @e = Engine.new(CREDENTIALS)
     @e.entity_create('book', SIMPLE_SCHEME)
     @book = @e.entities['book']
   end

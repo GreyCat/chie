@@ -10,15 +10,10 @@ module RubyDocumentDatabase
 
     attr_reader :entities
 
-    def initialize(db)
-      @db = db
+    def initialize(cred)
+      @db = Mysql2::Client.new(cred)
       desc_read
       desc_parse
-    end
-
-    def self.connect_mysql(cred)
-      db = Mysql2::Client.new(cred)
-      self.new(db)
     end
 
     # ========================================================================

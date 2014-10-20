@@ -17,7 +17,7 @@ SIMPLE_SCHEMA = [
 describe Engine do
   before(:all) do
     sqlexec(CREDENTIALS, "DROP DATABASE #{CREDENTIALS[:database]}; CREATE DATABASE #{CREDENTIALS[:database]};")
-    @e = Engine::connect_mysql(CREDENTIALS)
+    @e = Engine.new(CREDENTIALS)
   end
 
   it 'should connect to an empty MySQL database' do
