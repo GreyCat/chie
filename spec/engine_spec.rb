@@ -34,8 +34,12 @@ describe Engine do
       expect(@e.entities['book']).to eq(book)
 
       r = sqldump(CREDENTIALS).root.elements
-      #    expect(r.to_a('//table_structure[@name="book"]/field')map { |x| x.to_s }.join).to eq("xxx")
-      expect(r.to_a('//table_structure[@name="book"]/field').to_s).to eq("xxx")
+      expect(r.to_a('//table_structure[@name="book"]/field').map { |x| x.to_s }).to eq([
+          "<field Comment='' Extra='auto_increment' Field='_id' Key='PRI' Null='NO' Type='int(11)'/>",
+          "<field Comment='' Extra='' Field='_data' Key='' Null='YES' Type='mediumtext'/>",
+          "<field Comment='' Extra='' Field='name' Key='' Null='YES' Type='varchar(100)'/>",
+          "<field Comment='' Extra='' Field='yr' Key='' Null='YES' Type='int(11)'/>"
+      ])
     end
 
     it 'should be able to see newly created entity' do
