@@ -21,7 +21,7 @@ module RubyDocumentDatabase
     def desc_read
       if sql_table_exists(DESC_TABLE)
         desc_txt = nil
-        @db.query('SELECT `#{DESC_COLUMN}` FROM `#{DESC_TABLE}`;') { |row|
+        @db.query("SELECT `#{DESC_COLUMN}` FROM `#{DESC_TABLE}`;").each { |row|
           desc_txt = row[DESC_COLUMN]
         }
         if desc_txt
@@ -86,8 +86,6 @@ module RubyDocumentDatabase
 
     # ========================================================================
 
-    # ========================================================================
-
     def schema2sql(schema)
       lines = [
         '_id INT NOT NULL AUTO_INCREMENT',
@@ -116,7 +114,7 @@ module RubyDocumentDatabase
 
     def sql_table_exists(name)
       r = false
-      @db.query("SHOW TABLES LIKE '#{@db.escape(name)}';") { |row|
+      @db.query("SHOW TABLES LIKE '#{@db.escape(name)}';").each { |row|
         r = true
       }
       return r
