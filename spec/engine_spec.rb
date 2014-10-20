@@ -84,6 +84,8 @@ describe Engine do
 
   it 'should be able to modify record' do
     @e.update('book', 1, SIMPLE_RECORD_2)
+    rec = @e.get('book', 1)
+    expect(rec).to eq(SIMPLE_RECORD_2)
   end
 
   it 'should be able to delete entity' do
