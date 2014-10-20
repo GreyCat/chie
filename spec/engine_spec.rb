@@ -4,13 +4,13 @@ require 'mysql2'
 
 SIMPLE_SCHEMA = [
   {
-    :name => 'name',
-    :type => :str,
-    :len => 100,
+    'name' => 'name',
+    'type' => 'str',
+    'len' => 100,
   },
   {
-    :name => 'yr',
-    :type => :int,
+    'name' => 'yr',
+    'type' => 'int',
   },
 ]
 

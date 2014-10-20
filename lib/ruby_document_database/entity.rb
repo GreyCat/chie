@@ -10,7 +10,7 @@ module RubyDocumentDatabase
       @attr_by_name = {}
 
       @schema.each { |attr|
-        k = attr[:name]
+        k = attr['name']
         raise "Weird schema: no name in attribute #{attr.inspect}" unless k
         raise "Weird schema: duplicate attribute #{attr.inspect}" if @attr_by_name[k]
         @attr_by_name[k] = attr
@@ -91,10 +91,10 @@ module RubyDocumentDatabase
         attr = @attr_by_name[k]
         raise "Unknown attribute #{k.inspect}" if attr.nil?
 
-        sql_value = case attr[:type]
-        when :str
+        sql_value = case attr['type']
+        when 'str'
           "'#{@db.escape(v)}'"
-        when :int
+        when 'int'
           v
         else
           raise "Invalid type #{attr[:type].inspect} encountered on attribute #{k.inspect}"

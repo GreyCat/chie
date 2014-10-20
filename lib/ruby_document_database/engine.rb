@@ -94,17 +94,17 @@ module RubyDocumentDatabase
         '_data MEDIUMTEXT',
       ]
       schema.each { |v|
-        validate_sql_name(v[:name])
-        sql_type = case v[:type]
-        when :str
-          len = v[:len] || 256
+        validate_sql_name(v['name'])
+        sql_type = case v['type']
+        when 'str'
+          len = v['len'] || 256
           "VARCHAR(#{len})"
-        when :int
+        when 'int'
           'INT'
         else
           raise "Invalid type #{v[:type].inspect} encountered on attribute #{v[:name].inspect}"
         end
-        lines << "#{v[:name]} #{sql_type}"
+        lines << "#{v['name']} #{sql_type}"
       }
       lines.join(', ')
     end
