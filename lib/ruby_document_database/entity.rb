@@ -71,6 +71,12 @@ module RubyDocumentDatabase
 
     # ========================================================================
 
+    def to_json(opt)
+      @schema.to_json(opt)
+    end
+
+    # ========================================================================
+
     private
     def validate_id(id)
       raise "ID must be integer, but got #{id.inspect}" unless id.is_a?(Fixnum)

@@ -12,8 +12,7 @@ module RubyDocumentDatabase
 
     def initialize(cred)
       @db = Mysql2::Client.new(cred)
-      desc_read
-      desc_parse
+      desc_parse(desc_read)
     end
 
     # ========================================================================
@@ -25,21 +24,19 @@ module RubyDocumentDatabase
           desc_txt = row[DESC_COLUMN]
         }
         if desc_txt
-          @desc = JSON.load(desc_txt)
+          JSON.load(desc_txt)
         else
-          @desc = desc_new
-          desc_save
+          desc_new
         end
       else
         @db.query("CREATE TABLE `#{DESC_TABLE}` (`#{DESC_COLUMN}` MEDIUMTEXT);")
-        @desc = desc_new
-        desc_save
+        desc_new
       end
     end
 
-    def desc_parse
+    def desc_parse(desc)
       @entities = {}
-      @desc['entities'].each_pair { |k, v|
+      desc['entities'].each_pair { |k, v|
         @entities[k] = Entity.new(@db, k, v)
       }
     end
@@ -52,7 +49,11 @@ module RubyDocumentDatabase
     end
 
     def desc_save
-      desc_txt = @db.escape(@desc.to_json)
+      desc = {
+        'version' => 1,
+        'entities' => @entities,
+      }
+      desc_txt = @db.escape(desc.to_json)
       @db.query("TRUNCATE TABLE `#{DESC_TABLE}`;")
       @db.query("INSERT INTO `#{DESC_TABLE}` VALUES ('#{desc_txt}');")
     end
