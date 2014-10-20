@@ -40,7 +40,7 @@ module RubyDocumentDatabase
     def desc_parse
       @entities = {}
       @desc['entities'].each_pair { |k, v|
-        @entities[k] = Entity.from_json(@db, k, v)
+        @entities[k] = Entity.new(@db, k, v)
       }
     end
 
@@ -61,7 +61,7 @@ module RubyDocumentDatabase
 
     def entity_create(name, schema)
       validate_sql_name(name)
-      ent = Entity.from_json(@db, name, schema)
+      ent = Entity.new(@db, name, schema)
 
       raise "Duplicate entity #{name.inspect}" if @entities[name]
 

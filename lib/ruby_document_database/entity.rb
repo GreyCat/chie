@@ -2,26 +2,19 @@ module RubyDocumentDatabase
   class Entity
     attr_reader :schema
 
-    def initialize(db, name, schema, attr_order)
+    def initialize(db, name, schema)
       @db = db
       @name = name
       @schema = schema
-      @attr_order = attr_order
-    end
 
-    def self.from_json(db, name, json)
-      attr_by_name = {}
-      attr_order = []
+      @attr_by_name = {}
 
-      json.each { |attr|
+      @schema.each { |attr|
         k = attr[:name]
         raise "Weird schema: no name in attribute #{attr.inspect}" unless k
-        raise "Weird schema: duplicate attribute #{attr.inspect}" if attr_by_name[k]
-        attr_by_name[k] = attr
-        attr_order << k
+        raise "Weird schema: duplicate attribute #{attr.inspect}" if @attr_by_name[k]
+        @attr_by_name[k] = attr
       }
-
-      Entity.new(db, name, attr_by_name, attr_order)
     end
 
     # ========================================================================
@@ -89,7 +82,7 @@ module RubyDocumentDatabase
       }
 
       data.each_pair { |k, v|
-        attr = @schema[k]
+        attr = @attr_by_name[k]
         raise "Unknown attribute #{k.inspect}" if attr.nil?
 
         sql_value = case attr[:type]
