@@ -123,7 +123,7 @@ module RubyDocumentDatabase
       schema = @desc['entities'][entity]
       raise "Unknown entity #{entity.inspect}" if schema.nil?
 
-      raise "Unable to use ID #{id.inspect}" unless id.is_a?(Fixnum)
+      raise "ID must be integer, but got #{id.inspect}" unless id.is_a?(Fixnum)
 
       cols = parse_data_with_schema(data, schema)
       cols['_id'] = id
