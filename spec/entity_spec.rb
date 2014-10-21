@@ -73,4 +73,52 @@ describe Entity do
     expect(hist['yr']).to eq(SIMPLE_RECORD['yr'])
     expect(hist['_ts']).to be_kind_of(Time)
   end
+
+  context 'book->source relation' do
+    SOURCE_SCHEME = {
+      'attr' => [
+        {
+          'name' => 'name',
+          'type' => 'str',
+          'len' => 100,
+        }
+      ]
+    }
+
+    ARTICLE_SCHEME = {
+      'attr' => [
+        {
+          'name' => 'name',
+          'type' => 'str',
+          'len' => 100,
+        }
+      ],
+      'rel' => [
+        {
+          'name' => 'source',
+          'target' => 'source',
+          'type' => '1',
+        }
+      ]
+    }
+
+    before(:all) do
+      sqlclear
+      @e = Engine.new(CREDENTIALS)
+    end
+
+    it 'should be able to create two related entities' do
+      @source = @e.entity_create(Entity.new('source', SOURCE_SCHEME))
+      @article = @e.entity_create(Entity.new('article', ARTICLE_SCHEME))
+
+      expect(@e.entity('source')).to eq(@source)
+      expect(@e.entity('article')).to eq(@article)
+    end
+
+    it 'should be able to insert record in free entity' do
+      @source = @e.entity('source')
+      @source.insert('name' => 'Source')
+      expect(@source.count).to eq(1)
+    end
+  end
 end

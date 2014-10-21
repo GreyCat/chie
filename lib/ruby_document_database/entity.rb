@@ -1,4 +1,5 @@
 require 'ruby_document_database/attribute'
+require 'ruby_document_database/relation'
 
 module RubyDocumentDatabase
   class Entity
@@ -10,8 +11,8 @@ module RubyDocumentDatabase
 
       @db = nil
       @name = name
-      parse_attr(h['attr'])
-      parse_rel(h['rel'])
+      parse_attr(h['attr'] || [])
+      parse_rel(h['rel'] || [])
     end
 
     def parse_attr(h_attr)
@@ -27,20 +28,38 @@ module RubyDocumentDatabase
     end
 
     def parse_rel(h_rel)
-      # TODO
+      @rels = []
+      @rel_by_name = {}
+
+      h_rel.each { |r|
+        rel = Relation.new(r)
+        raise "Weird schema: duplicate relation name #{rel.inspect}" if @rel_by_name[rel.name]
+        @rel_by_name[rel.name] = rel
+        @rels << rel.name
+      }
     end
 
     # ========================================================================
 
-    attr_reader :attrs
+    attr_reader :attrs, :rels
 
     def attr(name)
       @attr_by_name[name]
     end
 
+    def rel(name)
+      @rel_by_name[name]
+    end
+
     def each_attr(&block)
       @attrs.each { |k|
         yield(@attr_by_name[k])
+      }
+    end
+
+    def each_rel(&block)
+      @rels.each { |k|
+        yield(@rel_by_name[k])
       }
     end
 
