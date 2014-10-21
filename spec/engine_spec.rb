@@ -17,7 +17,7 @@ SIMPLE_SCHEMA = [
 describe Engine do
   context 'starting from empty database' do
     before(:all) do
-      sqlexec("DROP DATABASE #{CREDENTIALS[:database]}; CREATE DATABASE #{CREDENTIALS[:database]};")
+      sqlclear
       @e = Engine.new(CREDENTIALS)
     end
 
