@@ -8,8 +8,6 @@ module RubyDocumentDatabase
     DESC_TABLE = '_desc'
     DESC_COLUMN = 'json'
 
-    attr_reader :entities
-
     def initialize(cred)
       @db = Mysql2::Client.new(cred)
       desc_parse(desc_read)
@@ -37,7 +35,9 @@ module RubyDocumentDatabase
     def desc_parse(desc)
       @entities = {}
       desc['entities'].each_pair { |k, v|
-        @entities[k] = Entity.new(@db, k, v)
+        ent = Entity.new(k, v)
+        ent.db = @db
+        @entities[k] = ent
       }
     end
 
@@ -60,15 +60,24 @@ module RubyDocumentDatabase
 
     # ========================================================================
 
-    def entity_create(name, schema)
-      validate_sql_name(name)
-      ent = Entity.new(@db, name, schema)
+    def entity(name)
+      @entities[name]
+    end
 
-      raise "Duplicate entity #{name.inspect}" if @entities[name]
+    def each_entity(&block)
+      @entities.each_pair { |k, v|
+        yield(v)
+      }
+    end
 
-      @db.query("CREATE TABLE `#{name}` (#{schema2sql(schema)});")
+    def entity_create(ent)
+      ent.db = @db
+
+      raise "Duplicate entity #{name.inspect}" if @entities[ent.name]
+
+      @db.query("CREATE TABLE `#{ent.name}` (#{ent.schema2sql});")
       @db.query <<-__EOS__
-      CREATE TABLE `#{name}_h` (
+      CREATE TABLE `#{ent.name}_h` (
         hid INT NOT NULL AUTO_INCREMENT,
         _id INT NOT NULL,
         PRIMARY KEY (hid),
@@ -79,7 +88,7 @@ module RubyDocumentDatabase
       );
       __EOS__
 
-      @entities[name] = ent
+      @entities[ent.name] = ent
       desc_save
 
       ent
@@ -87,29 +96,7 @@ module RubyDocumentDatabase
 
     # ========================================================================
 
-    def schema2sql(schema)
-      lines = [
-        '_id INT NOT NULL AUTO_INCREMENT',
-        'PRIMARY KEY (_id)',
-        '_data MEDIUMTEXT',
-      ]
-      schema.each { |v|
-        validate_sql_name(v['name'])
-        sql_type = case v['type']
-        when 'str'
-          len = v['len'] || 256
-          "VARCHAR(#{len})"
-        when 'int'
-          'INT'
-        else
-          raise "Invalid type #{v[:type].inspect} encountered on attribute #{v[:name].inspect}"
-        end
-        lines << "#{v['name']} #{sql_type}"
-      }
-      lines.join(', ')
-    end
-
-    def validate_sql_name(s)
+    def self.validate_sql_name(s)
       raise "Invalid SQL name: #{s.inspect}" unless s =~ /^[A-Za-z_][A-Za-z_0-9]*$/
     end
 

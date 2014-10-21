@@ -2,24 +2,26 @@ require 'spec_helper'
 
 require 'mysql2'
 
-SIMPLE_SCHEME = [
-  {
-    'name' => 'name',
-    'type' => 'str',
-    'len' => 100,
-  },
-  {
-    'name' => 'yr',
-    'type' => 'int',
-  },
-]
+SIMPLE_SCHEME = {
+  'attr' => [
+    {
+      'name' => 'name',
+      'type' => 'str',
+      'len' => 100,
+    },
+    {
+      'name' => 'yr',
+      'type' => 'int',
+    },
+  ]
+}
 
 describe Entity do
   before(:all) do
     sqlclear
     @e = Engine.new(CREDENTIALS)
-    @e.entity_create('book', SIMPLE_SCHEME)
-    @book = @e.entities['book']
+    @book = Entity.new('book', SIMPLE_SCHEME)
+    @e.entity_create(@book)
   end
 
   SIMPLE_RECORD = {

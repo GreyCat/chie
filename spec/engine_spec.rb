@@ -2,17 +2,23 @@ require 'spec_helper'
 
 require 'mysql2'
 
-SIMPLE_SCHEMA = [
-  {
-    'name' => 'name',
-    'type' => 'str',
-    'len' => 100,
-  },
-  {
-    'name' => 'yr',
-    'type' => 'int',
-  },
-]
+SIMPLE_SCHEMA = {
+  'attr' => [
+    {
+      'name' => 'name',
+      'type' => 'str',
+      'len' => 100,
+      'mand' => true,
+      'ind' => true,
+    },
+    {
+      'name' => 'yr',
+      'type' => 'int',
+      'mand' => false,
+      'ind' => true,
+    },
+  ]
+}
 
 describe Engine do
   context 'starting from empty database' do
@@ -23,15 +29,13 @@ describe Engine do
 
     it 'should connect to an empty MySQL database' do
       expect(@e).not_to be_nil
-      expect(@e.entities).to eq({})
     end
 
     it 'should be able to create simple entity by given scheme' do
-      book = @e.entity_create('book', SIMPLE_SCHEMA)
+      book = @e.entity_create(Entity.new('book', SIMPLE_SCHEMA))
 
       expect(book).to be_kind_of(Entity)
-      expect(@e.entities.keys).to eq(['book'])
-      expect(@e.entities['book']).to eq(book)
+      expect(@e.entity('book')).to eq(book)
 
       r = sqldump.root.elements
       expect(r.to_a('//table_structure[@name="book"]/field').map { |x| x.to_s }).to eq([
@@ -43,8 +47,8 @@ describe Engine do
     end
 
     it 'should be able to see newly created entity' do
-      expect(@e.entities['book']).not_to be_nil
-      expect(@e.entities['book'].schema).to eq(SIMPLE_SCHEMA)
+      expect(@e.entity('book')).not_to be_nil
+      expect(JSON.load(@e.entity('book').to_json)).to eq(SIMPLE_SCHEMA)
     end
 
     it 'should be able to delete entity' do
@@ -60,9 +64,9 @@ describe Engine do
 
     it 'should be able to see newly created entity' do
       @e = Engine.new(CREDENTIALS)
-      ent = @e.entities['book']
+      ent = @e.entity('book')
       expect(ent).not_to be_nil
-      expect(ent.schema).to eq(SIMPLE_SCHEMA)
+      expect(JSON.load(ent.to_json)).to eq(SIMPLE_SCHEMA)
     end
   end
 end

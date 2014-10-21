@@ -1,19 +1,46 @@
+require 'ruby_document_database/attribute'
+
 module RubyDocumentDatabase
   class Entity
-    attr_reader :schema, :name
+    attr_reader :name
+    attr_accessor :db
 
-    def initialize(db, name, schema)
-      @db = db
+    def initialize(name, h)
+      Engine::validate_sql_name(name)
+
+      @db = nil
       @name = name
-      @schema = schema
+      parse_attr(h['attr'])
+      parse_rel(h['rel'])
+    end
 
+    def parse_attr(h_attr)
+      @attrs = []
       @attr_by_name = {}
 
-      @schema.each { |attr|
-        k = attr['name']
-        raise "Weird schema: no name in attribute #{attr.inspect}" unless k
-        raise "Weird schema: duplicate attribute #{attr.inspect}" if @attr_by_name[k]
-        @attr_by_name[k] = attr
+      h_attr.each { |a|
+        attr = Attribute.new(a)
+        raise "Weird schema: duplicate attribute #{attr.inspect}" if @attr_by_name[attr.name]
+        @attr_by_name[attr.name] = attr
+        @attrs << attr.name
+      }
+    end
+
+    def parse_rel(h_rel)
+      # TODO
+    end
+
+    # ========================================================================
+
+    attr_reader :attrs
+
+    def attr(name)
+      @attr_by_name[name]
+    end
+
+    def each_attr(&block)
+      @attrs.each { |k|
+        yield(@attr_by_name[k])
       }
     end
 
@@ -92,11 +119,28 @@ module RubyDocumentDatabase
 
     # ========================================================================
 
-    def to_json(opt)
-      @schema.to_json(opt)
+    def to_json(opt = nil)
+      a = []
+      each_attr { |v| a << v }
+      {
+        'attr' => a,
+#        'rel' => @rels,
+      }.to_json(opt)
     end
 
     # ========================================================================
+
+    def schema2sql
+      lines = [
+        '_id INT NOT NULL AUTO_INCREMENT',
+        'PRIMARY KEY (_id)',
+        '_data MEDIUMTEXT',
+      ]
+      each_attr { |a|
+        lines << "#{a.name} #{a.as_sql_type}"
+      }
+      lines.join(', ')
+    end
 
     private
     def validate_id(id)
@@ -112,13 +156,13 @@ module RubyDocumentDatabase
         attr = @attr_by_name[k]
         raise "Unknown attribute #{k.inspect}" if attr.nil?
 
-        sql_value = case attr['type']
+        sql_value = case attr.type
         when 'str'
           "'#{@db.escape(v)}'"
         when 'int'
           v
         else
-          raise "Invalid type #{attr[:type].inspect} encountered on attribute #{k.inspect}"
+          raise "Invalid type #{attr.type.inspect} encountered on attribute #{k.inspect}"
         end
 
         r[k] = sql_value
