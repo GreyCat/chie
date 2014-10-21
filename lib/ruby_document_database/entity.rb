@@ -175,16 +175,7 @@ module RubyDocumentDatabase
         attr = @attr_by_name[k]
         raise "Unknown attribute #{k.inspect}" if attr.nil?
 
-        sql_value = case attr.type
-        when 'str'
-          "'#{@db.escape(v)}'"
-        when 'int'
-          v
-        else
-          raise "Invalid type #{attr.type.inspect} encountered on attribute #{k.inspect}"
-        end
-
-        r[k] = sql_value
+        r[k] = attr.sql_value(db, v)
       }
 
       return r

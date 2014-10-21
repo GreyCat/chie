@@ -40,5 +40,16 @@ module RubyDocumentDatabase
         raise "Invalid type #{@type.inspect} encountered on attribute #{@name.inspect}"
       end
     end
+
+    def sql_value(db, v)
+      case @type
+      when 'str'
+        "'#{db.escape(v)}'"
+      when 'int'
+        v
+      else
+        raise "Invalid type #{@type.inspect} encountered on attribute #{@name.inspect}"
+      end
+    end
   end
 end
