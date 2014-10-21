@@ -17,11 +17,11 @@ CREDENTIALS = {
   :database => 'rdd_test',
 }
 
-def sqlexec(cred, cmd)
-  `mysql --user='#{cred[:username]}' --password='#{cred[:password]}' '#{cred[:database]}' -e '#{cmd}'`
+def sqlexec(cmd)
+  `mysql --user='#{CREDENTIALS[:username]}' --password='#{CREDENTIALS[:password]}' '#{CREDENTIALS[:database]}' -e '#{cmd}'`
 end
 
-def sqldump(cred)
-  dump_xml = `mysqldump --xml --user='#{cred[:username]}' --password='#{cred[:password]}' '#{cred[:database]}'`
+def sqldump
+  dump_xml = `mysqldump --xml --user='#{CREDENTIALS[:username]}' --password='#{CREDENTIALS[:password]}' '#{CREDENTIALS[:database]}'`
   doc = REXML::Document.new(dump_xml)
 end

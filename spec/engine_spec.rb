@@ -17,7 +17,7 @@ SIMPLE_SCHEMA = [
 describe Engine do
   context 'starting from empty database' do
     before(:all) do
-      sqlexec(CREDENTIALS, "DROP DATABASE #{CREDENTIALS[:database]}; CREATE DATABASE #{CREDENTIALS[:database]};")
+      sqlexec("DROP DATABASE #{CREDENTIALS[:database]}; CREATE DATABASE #{CREDENTIALS[:database]};")
       @e = Engine.new(CREDENTIALS)
     end
 
@@ -33,7 +33,7 @@ describe Engine do
       expect(@e.entities.keys).to eq(['book'])
       expect(@e.entities['book']).to eq(book)
 
-      r = sqldump(CREDENTIALS).root.elements
+      r = sqldump.root.elements
       expect(r.to_a('//table_structure[@name="book"]/field').map { |x| x.to_s }).to eq([
           "<field Comment='' Extra='auto_increment' Field='_id' Key='PRI' Null='NO' Type='int(11)'/>",
           "<field Comment='' Extra='' Field='_data' Key='' Null='YES' Type='mediumtext'/>",
