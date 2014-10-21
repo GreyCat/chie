@@ -115,10 +115,22 @@ describe Entity do
       expect(@e.entity('article')).to eq(@article)
     end
 
-    it 'should be able to insert record in free entity' do
+    it 'should be able to insert record in source entity' do
       @source = @e.entity('source')
       @source.insert('name' => 'Source')
       expect(@source.count).to eq(1)
+    end
+
+    it 'should not be able to insert source-less record in article entity' do
+      @article = @e.entity('article')
+      expect { @article.insert('name' => 'Unbound article') }.to raise_error(ValidationError)
+      expect(@article.count).to eq(0)
+    end
+
+    it 'should be able to insert sourced record in article entity' do
+      @article = @e.entity('article')
+      @article.insert('name' => 'Sourced article', 'source' => 1)
+      expect(@article.count).to eq(1)
     end
   end
 end
