@@ -41,6 +41,22 @@ module RubyDocumentDatabase
       JSON.load(r)
     end
 
+    def history_get(hid)
+      validate_id(hid)
+
+      r = nil
+      @db.query("SELECT _data, ts, user_id FROM `#{@name}_h` WHERE hid=#{hid};").each { |row|
+        r = row
+      }
+      raise "Invalid query result returned from getting historical data on HID=#{hid}" if r.nil?
+
+      h = JSON.load(r['_data'])
+      h['_ts'] = r['ts']
+      h['_user'] = r['user_id']
+
+      h
+    end
+
     def insert(data, user = nil)
       user = parse_user(user)
 
