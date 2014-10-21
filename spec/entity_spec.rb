@@ -59,4 +59,16 @@ describe Entity do
     rec = @book.get(1)
     expect(rec).to eq(SIMPLE_RECORD_2)
   end
+
+  it 'should be able to see two distinct versions of our record' do
+    hist = @book.history_list(1)
+    expect(hist.size).to eq(2)
+  end
+
+  it 'should be able to get record in version #1' do
+    hist = @book.history_get(1)
+    expect(hist['name']).to eq(SIMPLE_RECORD['name'])
+    expect(hist['yr']).to eq(SIMPLE_RECORD['yr'])
+    expect(hist['_ts']).to be_kind_of(Time)
+  end
 end
