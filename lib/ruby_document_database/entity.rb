@@ -41,6 +41,11 @@ module RubyDocumentDatabase
       JSON.load(r)
     end
 
+    def history_list(id)
+      validate_id(id)
+      @db.query("SELECT hid, ts, user_id FROM `#{@name}_h` WHERE _id=#{id};")
+    end
+
     def history_get(hid)
       validate_id(hid)
 
