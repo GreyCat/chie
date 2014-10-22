@@ -132,5 +132,35 @@ describe Entity do
       @article.insert('name' => 'Sourced article', 'source' => 1)
       expect(@article.count).to eq(1)
     end
+
+    it 'should be able to see inserted record with linked one' do
+      @article = @e.entity('article')
+      a = @article.get(1)
+      expect(a).to eq({
+        "name" => "Sourced article",
+        "source"=> [{
+          "_id" => 1,
+          "name" => "Source",
+        }],
+      })
+    end
+  end
+
+  context 'book->source relation, reloaded' do
+    before(:all) do
+      @e = Engine.new(CREDENTIALS)
+    end
+
+    it 'should be able to see previously inserted record with linked one' do
+      @article = @e.entity('article')
+      a = @article.get(1)
+      expect(a).to eq({
+        "name" => "Sourced article",
+        "source"=> [{
+          "_id" => 1,
+          "name" => "Source",
+        }],
+      })
+    end
   end
 end
