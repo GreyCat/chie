@@ -228,8 +228,7 @@ module RubyDocumentDatabase
         elsif rel
           case rel.type
           when '01', '1'
-            validate_id(v)
-            res[k] = v
+            res[k] = v.to_i
           else
             raise InternalError.new("Unknown relation type #{rel.type}")
           end
