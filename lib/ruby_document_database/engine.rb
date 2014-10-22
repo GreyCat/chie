@@ -4,6 +4,8 @@ require 'json'
 require 'ruby_document_database/entity'
 
 module RubyDocumentDatabase
+  class InternalError < Exception; end
+
   class Engine
     DESC_TABLE = '_desc'
     DESC_COLUMN = 'json'
