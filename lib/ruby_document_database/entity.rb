@@ -160,6 +160,10 @@ module RubyDocumentDatabase
       each_attr { |a|
         lines << "#{a.name} #{a.as_sql_type}"
       }
+      each_rel { |r|
+        x = r.as_sql_type
+        lines << x unless x.nil?
+      }
       lines.join(', ')
     end
 

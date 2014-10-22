@@ -22,5 +22,16 @@ module RubyDocumentDatabase
 
       h.to_json(opt)
     end
+
+    # Returns fragment of SQL table creation statement that would
+    # create relevant single foreign key column, if applicable
+    def as_sql_type
+      case @type
+      when '01'
+        "#{@name} INT NULL, INDEX(#{@name})"
+      when '1'
+        "#{@name} INT NOT NULL, INDEX(#{@name})"
+      end
+    end
   end
 end
