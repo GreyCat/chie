@@ -2,7 +2,16 @@ require 'ruby_document_database/attribute'
 require 'ruby_document_database/relation'
 
 module RubyDocumentDatabase
-  class ValidationError < Exception; end
+  class ValidationError < Exception
+    def initialize(errs)
+      @errs = errs
+    end
+
+    def each(&block)
+      @errs.each { |e| yield(e) }
+    end
+  end
+
   class NotFound < Exception; end
 
   class Entity
