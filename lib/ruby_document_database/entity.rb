@@ -141,12 +141,17 @@ module RubyDocumentDatabase
     # ========================================================================
 
     def to_json(opt = nil)
+      h = {}
+
       a = []
       each_attr { |v| a << v }
-      {
-        'attr' => a,
-#        'rel' => @rels,
-      }.to_json(opt)
+      h['attr'] = a unless a.empty?
+
+      r = []
+      each_rel { |v| r << v }
+      h['attr'] = r unless r.empty?
+
+      h.to_json(opt)
     end
 
     # ========================================================================
