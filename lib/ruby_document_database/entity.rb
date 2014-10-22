@@ -3,6 +3,7 @@ require 'ruby_document_database/relation'
 
 module RubyDocumentDatabase
   class ValidationError < Exception; end
+  class NotFound < Exception; end
 
   class Entity
     attr_reader :name
@@ -80,13 +81,33 @@ module RubyDocumentDatabase
     def get(id)
       validate_id(id)
 
-      r = nil
+      basic_json = nil
       @db.query("SELECT _data FROM `#{@name}` WHERE _id=#{id};").each { |row|
-        r = row['_data']
+        basic_json = row['_data']
       }
-      raise "Invalid query result returned from getting data on ID=#{id}" if r.nil?
+      raise NotFound.new("Invalid query result returned from getting data on ID=#{id}") if basic_json.nil?
+      h = JSON.load(basic_json)
 
-      JSON.load(r)
+      each_rel { |r|
+        v = h[r.name]
+        next if v.nil?
+
+        # Wrap single scalar value in array, if it's type "01" or "1" relation
+        v = [v] unless v.respond_to?(:join)
+
+        # Resolve all related entities' IDs with names
+        resolved = []
+        @db.query("SELECT _id, name FROM `#{r.target}` WHERE _id IN (#{v.join(',')});").each { |row|
+          resolved << {
+            '_id' => row['_id'],
+            'name' => row['name'],
+          }
+        }
+
+        h[r.name] = resolved
+      }
+
+      h
     end
 
     def history_list(id)
