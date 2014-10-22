@@ -96,25 +96,7 @@ module RubyDocumentDatabase
       }
       raise NotFound.new("Invalid query result returned from getting data on ID=#{id}") if basic_json.nil?
       h = JSON.load(basic_json)
-
-      each_rel { |r|
-        v = h[r.name]
-        next if v.nil?
-
-        # Wrap single scalar value in array, if it's type "01" or "1" relation
-        v = [v] unless v.respond_to?(:join)
-
-        # Resolve all related entities' IDs with names
-        resolved = []
-        @db.query("SELECT _id, name FROM `#{r.target}` WHERE _id IN (#{v.join(',')});").each { |row|
-          resolved << {
-            '_id' => row['_id'],
-            'name' => row['name'],
-          }
-        }
-
-        h[r.name] = resolved
-      }
+      resolve_relations(h)
 
       h
     end
@@ -131,11 +113,12 @@ module RubyDocumentDatabase
       @db.query("SELECT _data, ts, user_id FROM `#{@name}_h` WHERE hid=#{hid};").each { |row|
         r = row
       }
-      raise "Invalid query result returned from getting historical data on HID=#{hid}" if r.nil?
+      raise NotFound.new("Invalid query result returned from getting historical data on HID=#{hid}") if r.nil?
 
       h = JSON.load(r['_data'])
       h['_ts'] = r['ts']
       h['_user'] = r['user_id']
+      resolve_relations(h)
 
       h
     end
@@ -255,6 +238,27 @@ module RubyDocumentDatabase
       raise ValidationError.new(errs) unless errs.empty?
 
       return res
+    end
+
+    def resolve_relations(h)
+      each_rel { |r|
+        v = h[r.name]
+        next if v.nil?
+
+        # Wrap single scalar value in array, if it's type "01" or "1" relation
+        v = [v] unless v.respond_to?(:join)
+
+        # Resolve all related entities' IDs with names
+        resolved = []
+        @db.query("SELECT _id, name FROM `#{r.target}` WHERE _id IN (#{v.join(',')});").each { |row|
+          resolved << {
+            '_id' => row['_id'],
+            'name' => row['name'],
+          }
+        }
+
+        h[r.name] = resolved
+      }
     end
 
     def parse_user(user)
