@@ -170,7 +170,7 @@ module RubyDocumentDatabase
 
       r = []
       each_rel { |v| r << v }
-      h['attr'] = r unless r.empty?
+      h['rel'] = r unless r.empty?
 
       h.to_json(opt)
     end
