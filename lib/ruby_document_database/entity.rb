@@ -2,6 +2,8 @@ require 'ruby_document_database/attribute'
 require 'ruby_document_database/relation'
 
 module RubyDocumentDatabase
+  class ValidationError < Exception; end
+
   class Entity
     attr_reader :name
     attr_accessor :db
@@ -167,18 +169,54 @@ module RubyDocumentDatabase
     end
 
     def parse_data_with_schema(data)
-      r = {
+      res = {
         '_data' => "'#{@db.escape(data.to_json)}'",
       }
+      errs = []
 
       data.each_pair { |k, v|
+        rel = @rel_by_name[k]
         attr = @attr_by_name[k]
-        raise "Unknown attribute #{k.inspect}" if attr.nil?
 
-        r[k] = attr.sql_value(db, v)
+        if attr
+          # TODO: add string striping here
+
+          if attr.mandatory and (v.nil? or v.empty?)
+            errs << "Mandatory attribute #{k.inspect} is empty"
+          end
+
+          res[k] = attr.sql_value(db, v)
+        elsif rel
+          case rel.type
+          when '01', '1'
+            validate_id(v)
+            res[k] = v
+          else
+            raise InternalError.new("Unknown relation type #{rel.type}")
+          end
+        else
+          errs << "Unknown argument #{k.inspect}"
+        end
       }
 
-      return r
+      # Check that all mandatories are present
+      each_attr { |a|
+        errs << "Mandatory attribute #{a.name.inspect} is missing" if a.mandatory and res[a.name].nil?
+      }
+      each_rel { |rel|
+        case rel.type
+        when '01'
+          # that's ok, it can be anything
+        when '1'
+          errs << "Mandatory relation #{rel.name.inspect} is missing" if res[rel.name].nil?
+        else
+          raise InternalError.new("Unknown relation type #{rel.type}")
+        end
+      }
+
+      raise ValidationError.new(errs) unless errs.empty?
+
+      return res
     end
 
     def parse_user(user)
