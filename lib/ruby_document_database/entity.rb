@@ -101,6 +101,11 @@ module RubyDocumentDatabase
       h
     end
 
+    def list_by_name(query)
+      query = @db.escape(query)
+      @db.query("SELECT _id, name FROM `#{@name}` WHERE name LIKE '%#{query}%';")
+    end
+
     def history_list(id)
       validate_id(id)
       @db.query("SELECT hid, ts, user_id FROM `#{@name}_h` WHERE _id=#{id};")
