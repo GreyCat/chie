@@ -53,9 +53,9 @@ module RubyDocumentDatabase
 
     def sql_value(db, v)
       case @type
-      when 'str'
+      when 'str', 'text'
         "'#{db.escape(v)}'"
-      when 'int'
+      when 'int', 'set'
         v
       else
         raise "Invalid type #{@type.inspect} encountered on attribute #{@name.inspect}"
