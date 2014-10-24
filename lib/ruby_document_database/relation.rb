@@ -9,9 +9,15 @@ module RubyDocumentDatabase
       raise "Invalid relation #{h.inspect}: no type" unless @type
       @target = h['target']
       raise "Invalid relation #{h.inspect}: no target" unless @target
+
+      @title = h['title']
     end
 
     # ========================================================================
+
+    def title
+      @title || @name
+    end
 
     def to_json(opt)
       h = {
@@ -19,6 +25,8 @@ module RubyDocumentDatabase
         'type' => @type,
         'target' => @target,
       }
+
+      h['title'] = @title if @title
 
       h.to_json(opt)
     end

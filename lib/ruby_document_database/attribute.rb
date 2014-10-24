@@ -8,10 +8,16 @@ module RubyDocumentDatabase
       @type = h['type']
       raise "Invalid attribute #{h.inspect}: no type" unless @type
 
+      @title = h['title']
+
       @len = h['len']
 
       @mandatory = h['mand'] || false
       @indexed = h['ind'] || false
+    end
+
+    def title
+      @title || @name
     end
 
     # ========================================================================
@@ -23,6 +29,8 @@ module RubyDocumentDatabase
         'mand' => @mandatory,
         'ind' => @indexed,
       }
+
+      h['title'] = @title if @title
 
       h['len'] = @len if @len
 

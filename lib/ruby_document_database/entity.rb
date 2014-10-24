@@ -23,6 +23,7 @@ module RubyDocumentDatabase
 
       @db = nil
       @name = name
+      @title = h['title']
       parse_attr(h['attr'] || [])
       parse_rel(h['rel'] || [])
     end
@@ -54,6 +55,10 @@ module RubyDocumentDatabase
     # ========================================================================
 
     attr_reader :attrs, :rels
+
+    def title
+      @title || @name
+    end
 
     def attr(name)
       @attr_by_name[name]
@@ -168,6 +173,8 @@ module RubyDocumentDatabase
       r = []
       each_rel { |v| r << v }
       h['rel'] = r unless r.empty?
+
+      h['title'] = @title if @title
 
       h.to_json(opt)
     end
