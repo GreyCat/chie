@@ -29,7 +29,7 @@ module RubyDocumentDatabase
           desc_new
         end
       else
-        @db.query("CREATE TABLE `#{DESC_TABLE}` (`#{DESC_COLUMN}` MEDIUMTEXT);")
+        @db.query("CREATE TABLE `#{DESC_TABLE}` (`#{DESC_COLUMN}` MEDIUMTEXT) DEFAULT CHARSET=utf8;")
         desc_new
       end
     end
