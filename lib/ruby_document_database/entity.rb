@@ -255,7 +255,7 @@ module RubyDocumentDatabase
     def resolve_relations(h)
       each_rel { |r|
         v = h[r.name]
-        next if v.nil?
+        next if v.nil? or v.empty?
 
         # Wrap single scalar value in array, if it's type "01" or "1" relation
         v = [v] unless v.respond_to?(:join)
