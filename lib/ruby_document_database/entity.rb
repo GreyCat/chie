@@ -156,9 +156,18 @@ module RubyDocumentDatabase
       col_names = cols.keys.map { |x| "`#{x}`" }.join(',')
       col_vals = cols.values.join(',')
 
-      @db.query("DELETE FROM `#{@name}` WHERE _id=#{id};")
-      @db.query("INSERT INTO `#{@name}` (#{col_names}) VALUES (#{col_vals});")
-      @db.query("INSERT INTO `#{@name}_h` (_id, _data, ts, user_id) VALUES (#{id}, #{cols['_data']}, NOW(), #{user});")
+      # Check if exactly the same data is already in the database; if it is, don't do any writes
+      exist_json = nil
+      # TODO: start transaction here
+      @db.query("SELECT _data FROM `#{@name}` WHERE _id=#{id};").each { |row|
+        exist_json = row['_data']
+      }
+      if data.to_json != exist_json
+        @db.query("DELETE FROM `#{@name}` WHERE _id=#{id};")
+        @db.query("INSERT INTO `#{@name}` (#{col_names}) VALUES (#{col_vals});")
+        @db.query("INSERT INTO `#{@name}_h` (_id, _data, ts, user_id) VALUES (#{id}, #{cols['_data']}, NOW(), #{user});")
+      end
+      # TODO: end transaction here
     end
 
     # ========================================================================

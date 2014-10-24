@@ -74,6 +74,12 @@ describe Entity do
     expect(hist['_ts']).to be_kind_of(Time)
   end
 
+  it 'should be not make new history entry when saving the same record twice' do
+    @book.update(1, SIMPLE_RECORD_2)
+    hist = @book.history_list(1)
+    expect(hist.size).to eq(2)
+  end
+
   context 'book->source relation' do
     SOURCE_SCHEME = {
       'attr' => [
