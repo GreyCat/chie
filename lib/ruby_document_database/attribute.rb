@@ -1,6 +1,6 @@
 module RubyDocumentDatabase
   class Attribute
-    attr_reader :name, :type, :mandatory, :indexed
+    attr_reader :name, :type, :mandatory, :indexed, :len, :values
 
     def initialize(h)
       @name = h['name']
@@ -11,6 +11,7 @@ module RubyDocumentDatabase
       @title = h['title']
 
       @len = h['len']
+      @values = h['values']
 
       @mandatory = h['mand'] || false
       @indexed = h['ind'] || false
@@ -33,6 +34,7 @@ module RubyDocumentDatabase
       h['title'] = @title if @title
 
       h['len'] = @len if @len
+      h['values'] = @values if @values
 
       h.to_json(opt)
     end
