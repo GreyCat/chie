@@ -237,14 +237,7 @@ module RubyDocumentDatabase
         errs << "Mandatory attribute #{a.name.inspect} is missing" if a.mandatory and res[a.name].nil?
       }
       each_rel { |rel|
-        case rel.type
-        when '01'
-          # that's ok, it can be anything
-        when '1'
-          errs << "Mandatory relation #{rel.name.inspect} is missing" if res[rel.name].nil?
-        else
-          raise InternalError.new("Unknown relation type #{rel.type}")
-        end
+        errs << "Mandatory relation #{rel.name.inspect} is missing" if rel.mandatory and res[rel.name].nil?
       }
 
       raise ValidationError.new(errs) unless errs.empty?

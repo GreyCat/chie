@@ -19,6 +19,10 @@ module RubyDocumentDatabase
       @title || @name
     end
 
+    def mandatory
+      @type == '1' or @type == '1n'
+    end
+
     def to_json(opt)
       h = {
         'name' => @name,
