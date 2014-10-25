@@ -55,7 +55,7 @@ module RubyDocumentDatabase
       case @type
       when 'str', 'text'
         "'#{db.escape(v)}'"
-      when 'int', 'set'
+      when 'int', 'set', 'enum'
         v
       else
         raise "Invalid type #{@type.inspect} encountered on attribute #{@name.inspect}"
