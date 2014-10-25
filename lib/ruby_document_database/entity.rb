@@ -224,7 +224,7 @@ module RubyDocumentDatabase
         if attr
           # TODO: add string striping here
 
-          if attr.mandatory and (v.nil? or v.empty?)
+          if attr.mandatory? and (v.nil? or v.empty?)
             errs << "Mandatory attribute #{k.inspect} is empty"
           end
 
@@ -243,10 +243,10 @@ module RubyDocumentDatabase
 
       # Check that all mandatories are present
       each_attr { |a|
-        errs << "Mandatory attribute #{a.name.inspect} is missing" if a.mandatory and res[a.name].nil?
+        errs << "Mandatory attribute #{a.name.inspect} is missing" if a.mandatory? and res[a.name].nil?
       }
       each_rel { |rel|
-        errs << "Mandatory relation #{rel.name.inspect} is missing" if rel.mandatory and res[rel.name].nil?
+        errs << "Mandatory relation #{rel.name.inspect} is missing" if rel.mandatory? and res[rel.name].nil?
       }
 
       raise ValidationError.new(errs) unless errs.empty?

@@ -1,6 +1,6 @@
 module RubyDocumentDatabase
   class Attribute
-    attr_reader :name, :type, :mandatory, :indexed, :len, :values
+    attr_reader :name, :type, :indexed, :len, :values
 
     def initialize(h)
       @name = h['name']
@@ -19,6 +19,10 @@ module RubyDocumentDatabase
 
     def title
       @title || @name
+    end
+
+    def mandatory?
+      @mandatory
     end
 
     # ========================================================================

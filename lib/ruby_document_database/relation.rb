@@ -19,7 +19,7 @@ module RubyDocumentDatabase
       @title || @name
     end
 
-    def mandatory
+    def mandatory?
       @type == '1' or @type == '1n'
     end
 
