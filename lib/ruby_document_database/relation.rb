@@ -23,6 +23,10 @@ module RubyDocumentDatabase
       @type == '1' or @type == '1n'
     end
 
+    def multi?
+      @type == '0n' or @type == '1n'
+    end
+
     def to_json(opt)
       h = {
         'name' => @name,
