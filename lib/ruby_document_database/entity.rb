@@ -136,6 +136,7 @@ module RubyDocumentDatabase
     def insert(data, user = nil)
       user = parse_user(user)
 
+      check_mandatories(data)
       cols = parse_data_with_schema(data)
       col_names = cols.keys.map { |x| "`#{x}`" }.join(',')
       col_vals = cols.values.join(',')
@@ -151,6 +152,7 @@ module RubyDocumentDatabase
       validate_id(id)
       user = parse_user(user)
 
+      check_mandatories(data)
       cols = parse_data_with_schema(data)
       cols['_id'] = id
       col_names = cols.keys.map { |x| "`#{x}`" }.join(',')
@@ -211,45 +213,53 @@ module RubyDocumentDatabase
       raise "ID must be integer, but got #{id.inspect}" unless id.is_a?(Fixnum)
     end
 
+    def check_mandatories(data)
+      errs = []
+
+      each_attr { |a|
+        next unless a.mandatory?
+        if data[a.name].nil?
+          errs << "Mandatory attribute #{a.name.inspect} is missing" 
+        elsif data[a.name].empty?
+          errs << "Mandatory attribute #{a.name.inspect} is empty" 
+        end
+      }
+
+      each_rel { |r|
+        next unless r.mandatory?
+        v = data[r.name]
+        if v.nil?
+          errs << "Mandatory relation #{r.name.inspect} is missing"
+        else
+          if r.multi?
+            errs << "Mandatory relation #{r.name.inspect} is empty" if v.empty?
+          else
+            # we don't check types and non-nil object seems to be ok in any case
+          end
+        end
+      }
+
+      raise ValidationError.new(errs) unless errs.empty?
+    end
+
     def parse_data_with_schema(data)
       res = {
         '_data' => "'#{@db.escape(data.to_json)}'",
       }
-      errs = []
 
       data.each_pair { |k, v|
         rel = @rel_by_name[k]
         attr = @attr_by_name[k]
 
         if attr
-          # TODO: add string striping here
-
-          if attr.mandatory? and (v.nil? or v.empty?)
-            errs << "Mandatory attribute #{k.inspect} is empty"
-          end
-
           res[k] = attr.sql_value(db, v)
         elsif rel
-          case rel.type
-          when '01', '1'
-            res[k] = v.to_i
-          else
-            raise InternalError.new("Unknown relation type #{rel.type}")
-          end
+          # Multi relations would be registered in separate n-to-n table, not as a column here
+          res[k] = v.to_i if not rel.multi?
         else
-          errs << "Unknown argument #{k.inspect}"
+          raise ArgumentError.new("Unknown argument #{k.inspect}")
         end
       }
-
-      # Check that all mandatories are present
-      each_attr { |a|
-        errs << "Mandatory attribute #{a.name.inspect} is missing" if a.mandatory? and res[a.name].nil?
-      }
-      each_rel { |rel|
-        errs << "Mandatory relation #{rel.name.inspect} is missing" if rel.mandatory? and res[rel.name].nil?
-      }
-
-      raise ValidationError.new(errs) unless errs.empty?
 
       return res
     end
