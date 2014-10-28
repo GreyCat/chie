@@ -1,5 +1,6 @@
 require 'ruby_document_database/attribute'
 require 'ruby_document_database/relation'
+require 'ruby_document_database/recordset'
 
 module RubyDocumentDatabase
   class ValidationError < Exception
@@ -104,6 +105,37 @@ module RubyDocumentDatabase
       resolve_relations(h)
 
       h
+    end
+
+    ##
+    # Lists a collection of records of this entity, returning an
+    # iterable collection of rows, each containing fields ['_id'] and
+    # ['name'].  Default invocation lists all possible
+    # records. Additional options, specified in `opt` hash can be used
+    # to filter output:
+    #
+    # * :per_page - number of records to output on one page, used in
+    #   conjuction with `:page` parameter; if not specified, default
+    #   value is 10.
+    # * :page - output only records on specified page of pages, each
+    #   containing `per_page` records; first page is #1.
+    def list(opt)
+      q = "SELECT _id, name FROM `#{@name}`"
+      opt2 = {}
+
+      if opt[:page]
+        per_page = opt[:per_page].to_i || 10
+        opt2[:per_page] = per_page
+
+        @db.query("SELECT COUNT(*) AS cnt FROM `#{@name}`").each { |row|
+          opt2[:total_count] = row['cnt']
+        }
+
+        opt2[:page] = opt[:page].to_i
+        q << " LIMIT #{opt2[:page] * per_page}, #{per_page}"
+      end
+
+      RecordSet.new(@db.query(q), opt2)
     end
 
     def list_by_name(query)
