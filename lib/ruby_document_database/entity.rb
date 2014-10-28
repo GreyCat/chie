@@ -120,7 +120,7 @@ module RubyDocumentDatabase
     # * :page - output only records on specified page of pages, each
     #   containing `per_page` records; first page is #1.
     def list(opt)
-      q = "SELECT _id, name FROM `#{@name}`"
+      q = "SELECT _id, name FROM `#{@name}` ORDER BY `name`"
       opt2 = {}
 
       if opt[:page]
@@ -132,7 +132,8 @@ module RubyDocumentDatabase
         }
 
         opt2[:page] = opt[:page].to_i
-        q << " LIMIT #{opt2[:page] * per_page}, #{per_page}"
+        opt2[:page] = 1 if opt2[:page] < 1
+        q << " LIMIT #{(opt2[:page] - 1) * per_page}, #{per_page}"
       end
 
       RecordSet.new(@db.query(q), opt2)
