@@ -50,11 +50,6 @@ describe Engine do
       expect(@e.entity('book')).not_to be_nil
       expect(JSON.load(@e.entity('book').to_json)).to eq(SIMPLE_SCHEMA)
     end
-
-    it 'should be able to delete entity' do
-      @e.entity_delete('book')
-      expect(@e.entities).not_to include('book')
-    end
   end
 
   context 'starting from existing database' do
@@ -67,6 +62,19 @@ describe Engine do
       ent = @e.entity('book')
       expect(ent).not_to be_nil
       expect(JSON.load(ent.to_json)).to eq(SIMPLE_SCHEMA)
+    end
+
+    it 'should raise an error trying to delete non-existing entity' do
+      @e = Engine.new(CREDENTIALS)
+      expect { @e.entity_delete('foo') }.to raise_error(NotFound)
+    end
+
+    it 'should be able to delete entity' do
+      @e = Engine.new(CREDENTIALS)
+      @e.entity_delete('book')
+      cnt = 0
+      @e.each_entity { cnt += 1 }
+      expect(cnt).to eq(0)
     end
   end
 end

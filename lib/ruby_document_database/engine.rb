@@ -96,6 +96,19 @@ module RubyDocumentDatabase
       ent
     end
 
+    def entity_delete(name)
+      ent = @entities[name]
+      raise NotFound.new("Entity #{name} not found") unless ent
+
+      # TODO: add dependency checks here
+
+      @db.query("DROP TABLE `#{name}`;")
+      @db.query("DROP TABLE `#{name}_h`;")
+
+      @entities.delete(name)
+      desc_save
+    end
+
     # ========================================================================
 
     def self.validate_sql_name(s)
