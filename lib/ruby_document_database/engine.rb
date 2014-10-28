@@ -77,7 +77,7 @@ module RubyDocumentDatabase
 
       raise "Duplicate entity #{name.inspect}" if @entities[ent.name]
 
-      @db.query("CREATE TABLE `#{ent.name}` (#{ent.schema2sql});")
+      @db.query("CREATE TABLE `#{ent.name}` (#{ent.schema2sql}) DEFAULT CHARSET=utf8;")
       @db.query <<-__EOS__
       CREATE TABLE `#{ent.name}_h` (
         hid INT NOT NULL AUTO_INCREMENT,
@@ -87,7 +87,7 @@ module RubyDocumentDatabase
         _data MEDIUMTEXT,
         ts DATETIME,
         user_id INT
-      );
+      ) DEFAULT CHARSET=utf8;
       __EOS__
 
       @entities[ent.name] = ent
