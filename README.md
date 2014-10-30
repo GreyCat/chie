@@ -42,3 +42,7 @@ TODO
 ## Gory internal details
 
 TODO
+
+## License
+
+MIT
