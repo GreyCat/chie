@@ -50,6 +50,8 @@ module Chie
         "VARCHAR(#{len})"
       when 'int', 'set', 'enum'
         'INT'
+      when 'float'
+        'DOUBLE'
       when 'text'
         'LONGTEXT'
       else
@@ -61,7 +63,7 @@ module Chie
       case @type
       when 'str', 'text'
         "'#{db.escape(v)}'"
-      when 'int', 'set', 'enum'
+      when 'int', 'set', 'enum', 'float'
         v
       else
         raise "Invalid type #{@type.inspect} encountered on attribute #{@name.inspect}"
