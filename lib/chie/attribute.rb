@@ -48,8 +48,10 @@ module Chie
       when 'str'
         len = @len || 256
         "VARCHAR(#{len})"
-      when 'int'
+      when 'int', 'set', 'enum'
         'INT'
+      when 'text'
+        'LONGTEXT'
       else
         raise "Invalid type #{@type.inspect} encountered on attribute #{@name.inspect}"
       end
