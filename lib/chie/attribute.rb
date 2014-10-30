@@ -1,4 +1,4 @@
-module RubyDocumentDatabase
+module Chie
   class Attribute
     attr_reader :name, :type, :indexed, :len, :values
 

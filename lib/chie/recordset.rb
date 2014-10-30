@@ -1,4 +1,4 @@
-module RubyDocumentDatabase
+module Chie
   class RecordSet
     def initialize(result, opt)
       @result = result

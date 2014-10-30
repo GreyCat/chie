@@ -3,8 +3,8 @@ require 'bundler/setup'
 
 require 'rexml/document'
 
-require 'ruby_document_database'
-include RubyDocumentDatabase
+require 'chie'
+include Chie
 
 RSpec.configure { |config|
   # some (optional) config here

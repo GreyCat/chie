@@ -1,17 +1,17 @@
 # -*- encoding: utf-8 -*-
 
-require File.expand_path("../lib/ruby_document_database/version", __FILE__)
+require File.expand_path("../lib/chie/version", __FILE__)
 require 'date'
 
 Gem::Specification.new { |s|
-  s.name = 'ruby_document_database'
-  s.version = RubyDocumentDatabase::VERSION
+  s.name = 'chie'
+  s.version = Chie::VERSION
   s.date = Date.today.to_s
 
   s.authors = ['Mikhail Yakshin']
   s.email = 'greycat.na.kor@gmail.com'
 
-  s.homepage = 'https://github.com/GreyCat/ruby_document_database'
+  s.homepage = 'https://github.com/GreyCat/chie'
   s.summary = 'TODO'
   s.license = 'TODO'
   s.description = <<-EOF

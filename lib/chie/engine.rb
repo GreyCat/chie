@@ -1,9 +1,9 @@
 require 'mysql2'
 require 'json'
 
-require 'ruby_document_database/entity'
+require 'chie/entity'
 
-module RubyDocumentDatabase
+module Chie
   class InternalError < Exception; end
 
   class Engine

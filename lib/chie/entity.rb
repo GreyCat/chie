@@ -1,8 +1,8 @@
-require 'ruby_document_database/attribute'
-require 'ruby_document_database/relation'
-require 'ruby_document_database/recordset'
+require 'chie/attribute'
+require 'chie/relation'
+require 'chie/recordset'
 
-module RubyDocumentDatabase
+module Chie
   class ValidationError < Exception
     def initialize(errs)
       @errs = errs

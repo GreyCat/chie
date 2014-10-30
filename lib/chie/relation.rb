@@ -1,4 +1,4 @@
-module RubyDocumentDatabase
+module Chie
   class Relation
     attr_reader :name, :target, :type
 

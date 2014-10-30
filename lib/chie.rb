@@ -1,3 +1,3 @@
-require 'ruby_document_database/version'
+require 'chie/version'
 
-require 'ruby_document_database/engine'
+require 'chie/engine'
