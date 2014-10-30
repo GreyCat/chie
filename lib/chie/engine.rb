@@ -75,7 +75,7 @@ module Chie
     def entity_create(ent)
       ent.db = @db
 
-      raise "Duplicate entity #{name.inspect}" if @entities[ent.name]
+      raise "Duplicate entity #{ent.name.inspect}" if @entities[ent.name]
 
       @db.query("CREATE TABLE `#{ent.name}` (#{ent.schema2sql}) DEFAULT CHARSET=utf8;")
       @db.query <<-__EOS__
