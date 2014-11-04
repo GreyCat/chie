@@ -77,4 +77,81 @@ describe Engine do
       expect(cnt).to eq(0)
     end
   end
+
+  context 'creation of mixed indexable and non-indexable columns' do
+    MIXED_SCHEMA = {
+      'attr' => [
+        {
+          'name' => 'name',
+          'type' => 'str',
+          'len' => 100,
+          'mand' => true,
+          'ind' => true,
+        },
+        {
+          'name' => 'int_non_ind',
+          'type' => 'int',
+          'mand' => false,
+          'ind' => false,
+        },
+        {
+          'name' => 'str_ind',
+          'type' => 'str',
+          'len' => 500,
+          'mand' => false,
+          'ind' => true,
+        },
+        {
+          'name' => 'str_non_ind',
+          'type' => 'str',
+          'len' => 500,
+          'mand' => false,
+          'ind' => false,
+        },
+      ]
+    }
+
+    before(:all) do
+      sqlclear
+      @e = Engine.new(CREDENTIALS)
+    end
+
+    it 'should be able to create indexable and non-indexable columns' do
+      @e = Engine.new(CREDENTIALS)
+
+      ent = @e.entity_create(Entity.new('ent', MIXED_SCHEMA))
+
+      r = sqldump.root.elements
+      expect(r.to_a('//table_structure[@name="ent"]/field').map { |x| x.to_s }).to eq([
+          "<field Comment='' Extra='auto_increment' Field='_id' Key='PRI' Null='NO' Type='int(11)'/>",
+          "<field Comment='' Extra='' Field='_data' Key='' Null='YES' Type='mediumtext'/>",
+          "<field Comment='' Extra='' Field='name' Key='' Null='YES' Type='varchar(100)'/>",
+          "<field Comment='' Extra='' Field='str_ind' Key='' Null='YES' Type='varchar(500)'/>"
+      ])
+    end
+
+    it 'should be able to insert data in all columns' do
+      ent = @e.entity('ent')
+      expect(ent).not_to be_nil
+      @record = ent.insert({
+        'name' => 'Foo',
+        'int_non_ind' => 42,
+        'str_ind' => 'Bar',
+        'str_non_ind' => 'Baz',
+      })
+    end
+
+    it 'should be able to insert data in all columns' do
+      ent = @e.entity('ent')
+      expect(ent).not_to be_nil
+      r = ent.get(@record)
+      expect(r).to be_eq({
+        '_id' => @record,
+        'name' => 'Foo',
+        'int_non_ind' => 42,
+        'str_ind' => 'Bar',
+        'str_non_ind' => 'Baz',
+      })
+    end
+  end
 end
