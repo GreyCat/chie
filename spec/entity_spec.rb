@@ -8,10 +8,12 @@ SIMPLE_SCHEME = {
       'name' => 'name',
       'type' => 'str',
       'len' => 100,
+      'ind' => true,
     },
     {
       'name' => 'yr',
       'type' => 'int',
+      'ind' => true,
     },
   ]
 }
@@ -87,6 +89,7 @@ describe Entity do
           'name' => 'name',
           'type' => 'str',
           'len' => 100,
+          'ind' => true,
         }
       ]
     }
@@ -97,6 +100,7 @@ describe Entity do
           'name' => 'name',
           'type' => 'str',
           'len' => 100,
+          'ind' => true,
         }
       ],
       'rel' => [
