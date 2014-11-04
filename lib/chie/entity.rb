@@ -170,7 +170,7 @@ module Chie
       user = parse_user(user)
 
       check_mandatories(data)
-      cols = parse_data_with_schema(data)
+      cols = generate_sql_columns(data)
       col_names = cols.keys.map { |x| "`#{x}`" }.join(',')
       col_vals = cols.values.join(',')
 
@@ -186,7 +186,7 @@ module Chie
       user = parse_user(user)
 
       check_mandatories(data)
-      cols = parse_data_with_schema(data)
+      cols = generate_sql_columns(data)
       cols['_id'] = id
       col_names = cols.keys.map { |x| "`#{x}`" }.join(',')
       col_vals = cols.values.join(',')
@@ -281,7 +281,7 @@ module Chie
     # would include `_data` column with all the data serialized as
     # JSON and individual columns corresponding to indexed attributes
     # and relations separately.
-    def parse_data_with_schema(data)
+    def generate_sql_columns(data)
       res = {
         '_data' => "'#{@db.escape(data.to_json)}'",
       }

@@ -37,7 +37,7 @@ describe Entity do
   }
 
   it 'should be able to properly convert data hash to SQL according to the schema' do
-    expect(@book.instance_eval { parse_data_with_schema(SIMPLE_RECORD) }).to eq({
+    expect(@book.instance_eval { generate_sql_columns(SIMPLE_RECORD) }).to eq({
         '_data' => "'{\\\"name\\\":\\\"Lorem ipsum\\\",\\\"yr\\\":1234}'",
         'name' => "'Lorem ipsum'",
         'yr' => 1234,
