@@ -232,7 +232,7 @@ module Chie
         '_data MEDIUMTEXT',
       ]
       each_attr { |a|
-        lines << "#{a.name} #{a.as_sql_type}"
+        lines << "#{a.name} #{a.as_sql_type}" if a.indexed?
       }
       each_rel { |r|
         x = r.as_sql_type
@@ -275,6 +275,12 @@ module Chie
       raise ValidationError.new(errs) unless errs.empty?
     end
 
+    ##
+    # Prepares a hash with keys named as SQL columns and values with
+    # data that should be inserted into each of them. Normally it
+    # would include `_data` column with all the data serialized as
+    # JSON and individual columns corresponding to indexed attributes
+    # and relations separately.
     def parse_data_with_schema(data)
       res = {
         '_data' => "'#{@db.escape(data.to_json)}'",
@@ -285,7 +291,8 @@ module Chie
         attr = @attr_by_name[k]
 
         if attr
-          res[k] = attr.sql_value(db, v)
+          # Only add indexed attributes; non-indexed would be normally available via _data
+          res[k] = attr.sql_value(db, v) if attr.indexed?
         elsif rel
           # Multi relations would be registered in separate n-to-n table, not as a column here
           res[k] = v.to_i if not rel.multi?
