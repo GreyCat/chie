@@ -117,9 +117,10 @@ describe Engine do
     end
 
     it 'should be able to create indexable and non-indexable columns' do
-      @e = Engine.new(CREDENTIALS)
-
       ent = @e.entity_create(Entity.new('ent', MIXED_SCHEMA))
+
+      ent2 = @e.entity('ent')
+      expect(ent2).not_to be_nil
 
       r = sqldump.root.elements
       expect(r.to_a('//table_structure[@name="ent"]/field').map { |x| x.to_s }).to eq([
@@ -133,7 +134,7 @@ describe Engine do
     it 'should be able to insert data in all columns' do
       ent = @e.entity('ent')
       expect(ent).not_to be_nil
-      @record = ent.insert({
+      ent.insert({
         'name' => 'Foo',
         'int_non_ind' => 42,
         'str_ind' => 'Bar',
@@ -144,9 +145,8 @@ describe Engine do
     it 'should be able to insert data in all columns' do
       ent = @e.entity('ent')
       expect(ent).not_to be_nil
-      r = ent.get(@record)
-      expect(r).to be_eq({
-        '_id' => @record,
+      r = ent.get(1)
+      expect(r).to eq({
         'name' => 'Foo',
         'int_non_ind' => 42,
         'str_ind' => 'Bar',
