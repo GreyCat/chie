@@ -25,6 +25,10 @@ module Chie
       @mandatory
     end
 
+    def indexed?
+      @indexed
+    end
+
     # ========================================================================
 
     def to_json(opt)
