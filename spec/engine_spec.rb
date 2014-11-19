@@ -154,4 +154,15 @@ describe Engine do
       })
     end
   end
+
+  context 'starting from empty database, connect by URL' do
+    before(:all) do
+      sqlclear
+    end
+
+    it 'should be able to connect' do
+      @e = Engine.new(DATABASE_URL)
+      expect(@e).not_to be_nil
+    end
+  end
 end

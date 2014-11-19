@@ -17,6 +17,8 @@ CREDENTIALS = {
   :database => 'rdd_test',
 }
 
+DATABASE_URL = 'mysql2://rdd_test:rdd_test@localhost/rdd_test'
+
 def sqlexec(cmd)
   `mysql --user='#{CREDENTIALS[:username]}' --password='#{CREDENTIALS[:password]}' '#{CREDENTIALS[:database]}' -e '#{cmd}'`
 end
