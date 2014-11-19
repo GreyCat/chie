@@ -11,6 +11,18 @@ module Chie
     DESC_COLUMN = 'json'
 
     def initialize(cred)
+      if cred.is_a?(String)
+        uri = URI.parse(cred)
+        raise "Chie is (yet) unable to work with '#{uri.scheme}', it supports only 'mysql2' so far" unless uri.scheme == 'mysql2'
+        cred = {
+          :host => uri.host,
+          :port => uri.port,
+          :username => uri.user,
+          :password => uri.password,
+          :database => uri.path.gsub(/^\//, ''),
+        }
+      end
+
       @db = Mysql2::Client.new(cred)
       desc_parse(desc_read)
     end
