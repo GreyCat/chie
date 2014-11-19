@@ -20,6 +20,7 @@ module Chie
           :username => uri.user,
           :password => uri.password,
           :database => uri.path.gsub(/^\//, ''),
+          :reconnect => true,
         }
       end
 
