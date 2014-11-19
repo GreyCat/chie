@@ -12,10 +12,15 @@ Gem::Specification.new { |s|
   s.email = 'greycat.na.kor@gmail.com'
 
   s.homepage = 'https://github.com/GreyCat/chie'
-  s.summary = 'TODO'
-  s.license = 'TODO'
+  s.summary = 'Data-driven, document- and transaction-based object-relationship management system (ORM)'
+  s.license = 'MIT'
   s.description = <<-EOF
-TODO
+Chie is a dynamic, data-driven, document- and transaction-based
+object-relationship management system (ORM). It allows to create
+entities with attributes and relations on the fly / in runtime, and
+then insert, update, search for and retrieve entity instances. Every
+action is written as a transaction, thus it's possible to revert to
+specific version of entity at any time.
 EOF
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
