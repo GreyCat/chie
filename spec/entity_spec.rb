@@ -82,6 +82,21 @@ describe Entity do
     expect(hist.size).to eq(2)
   end
 
+  USER_ID = 1234
+
+  it 'should add another record with given user and time' do
+    @book.insert(SIMPLE_RECORD, USER_ID, Time.at(1000000000))
+  end
+
+  it 'should have correct user and time in history for that record' do
+    hist = @book.history_list(2)
+    expect(hist.size).to eq(1)
+    hist.each { |entry|
+      expect(entry['user_id']).to eq(USER_ID)
+      expect(Time.at(entry['ts'])).to eq(Time.at(1000000000))
+    }
+  end
+
   context 'book->source relation' do
     SOURCE_SCHEME = {
       'attr' => [

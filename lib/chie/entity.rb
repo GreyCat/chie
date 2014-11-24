@@ -159,15 +159,16 @@ module Chie
       raise NotFound.new("Invalid query result returned from getting historical data on HID=#{hid}") if r.nil?
 
       h = JSON.load(r['_data'])
-      h['_ts'] = r['ts']
+      h['_ts'] = Time.at(r['ts'])
       h['_user'] = r['user_id']
       resolve_relations(h)
 
       h
     end
 
-    def insert(data, user = nil)
+    def insert(data, user = nil, time = nil)
       user = parse_user(user)
+      time = time_to_mysql(time)
 
       check_mandatories(data)
       cols = generate_sql_columns(data)
@@ -176,14 +177,15 @@ module Chie
 
       @db.query("INSERT INTO `#{@name}` (#{col_names}) VALUES (#{col_vals});")
       id = @db.last_id
-      @db.query("INSERT INTO `#{@name}_h` (_id, _data, ts, user_id) VALUES (#{id}, #{cols['_data']}, NOW(), #{user});")
+      @db.query("INSERT INTO `#{@name}_h` (_id, _data, ts, user_id) VALUES (#{id}, #{cols['_data']}, #{time}, #{user});")
 
       id
     end
 
-    def update(id, data, user = nil)
+    def update(id, data, user = nil, time = nil)
       validate_id(id)
       user = parse_user(user)
+      time = time_to_mysql(time)
 
       check_mandatories(data)
       cols = generate_sql_columns(data)
@@ -200,7 +202,7 @@ module Chie
       if data.to_json != exist_json
         @db.query("DELETE FROM `#{@name}` WHERE _id=#{id};")
         @db.query("INSERT INTO `#{@name}` (#{col_names}) VALUES (#{col_vals});")
-        @db.query("INSERT INTO `#{@name}_h` (_id, _data, ts, user_id) VALUES (#{id}, #{cols['_data']}, NOW(), #{user});")
+        @db.query("INSERT INTO `#{@name}_h` (_id, _data, ts, user_id) VALUES (#{id}, #{cols['_data']}, #{time}, #{user});")
       end
       # TODO: end transaction here
     end
@@ -333,6 +335,11 @@ module Chie
       else
         raise "Unable to use user ID #{user.inspect}"
       end
+    end
+
+    def time_to_mysql(time)
+      time = Time.now if time.nil?
+      time.to_i
     end
   end
 end

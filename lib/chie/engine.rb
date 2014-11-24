@@ -98,7 +98,7 @@ module Chie
         PRIMARY KEY (hid),
         INDEX _id_idx (_id),
         _data MEDIUMTEXT,
-        ts DATETIME,
+        ts INT,
         user_id INT
       ) DEFAULT CHARSET=utf8;
       __EOS__
