@@ -114,13 +114,37 @@ module Chie
     # records. Additional options, specified in `opt` hash can be used
     # to filter output:
     #
+    # * :where - where phrase
     # * :per_page - number of records to output on one page, used in
     #   conjuction with `:page` parameter; if not specified, default
     #   value is 10.
     # * :page - output only records on specified page of pages, each
     #   containing `per_page` records; first page is #1.
     def list(opt)
-      q = "SELECT _id, name FROM `#{@name}` ORDER BY `name`"
+      q = "SELECT _id, name FROM `#{@name}`"
+
+      if opt[:where]
+        where = []
+        opt[:where].each_pair { |k, v|
+          a = @attr_by_name[k]
+          raise "Invalid field name: #{k.inspect}" unless a
+          raise "Field #{k.inspect} is not indexed" unless a.indexed?
+
+          if v.is_a?(String)
+            vv = "'#{@db.escape(v)}'"
+          elsif v.is_a?(Numeric)
+            vv = v.to_s
+          else
+            raise "Unable to parse value #{v.inspect} for field #{k.inspect}"
+          end
+
+          where << "`#{k}`=#{vv}"
+        }
+        q << ' '
+        q << where.join(' AND ')
+      end
+
+      q << " ORDER BY `name`"
       opt2 = {}
 
       if opt[:page]
