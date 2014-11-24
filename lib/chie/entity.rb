@@ -140,7 +140,7 @@ module Chie
 
           where << "`#{k}`=#{vv}"
         }
-        q << ' '
+        q << ' WHERE '
         q << where.join(' AND ')
       end
 
