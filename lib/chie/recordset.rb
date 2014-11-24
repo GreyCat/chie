@@ -20,5 +20,9 @@ module Chie
         1
       end
     end
+
+    def count
+      @result.count
+    end
   end
 end
