@@ -97,6 +97,14 @@ describe Entity do
     }
   end
 
+  it 'should be able to list entities by name and year' do
+    expect(@book.list(where: {'name' => 'foo'}).count).to eq(0)
+    expect(@book.list(where: {'name' => SIMPLE_RECORD['name']}).count).to eq(1)
+    expect(@book.list(where: {'name' => SIMPLE_RECORD_2['name']}).count).to eq(1)
+    expect(@book.list(where: {'yr' => SIMPLE_RECORD['yr']}).count).to eq(1)
+    expect(@book.list(where: {'yr' => SIMPLE_RECORD_2['yr']}).count).to eq(1)
+  end
+
   context 'book->source relation' do
     SOURCE_SCHEME = {
       'attr' => [
