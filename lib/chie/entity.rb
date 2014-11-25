@@ -114,6 +114,8 @@ module Chie
     # records. Additional options, specified in `opt` hash can be used
     # to filter output:
     #
+    # * :fields - fields to request; by default, requests all fields
+    #   ("*")
     # * :where - where phrase
     # * :per_page - number of records to output on one page, used in
     #   conjuction with `:page` parameter; if not specified, default
@@ -121,7 +123,9 @@ module Chie
     # * :page - output only records on specified page of pages, each
     #   containing `per_page` records; first page is #1.
     def list(opt)
-      q = "SELECT _id, name FROM `#{@name}`"
+      fields = opt[:fields] ? opt[:fields].join(',') : '*'
+
+      q = "SELECT #{fields} FROM `#{@name}`"
 
       if opt[:where]
         where = []
