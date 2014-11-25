@@ -282,8 +282,8 @@ module Chie
         next unless a.mandatory?
         if data[a.name].nil?
           errs << "Mandatory attribute #{a.name.inspect} is missing" 
-        elsif data[a.name].empty?
-          errs << "Mandatory attribute #{a.name.inspect} is empty" 
+        else
+          errs << "Mandatory attribute #{a.name.inspect} is empty" if a.check_value_empty(data[a.name])
         end
       }
 

@@ -73,5 +73,23 @@ module Chie
         raise "Invalid type #{@type.inspect} encountered on attribute #{@name.inspect}"
       end
     end
+
+    ##
+    # Checks is a given data is considered empty in respect to
+    # attribute's type. The check is different for every data type and
+    # even non-existent for some. "data" is non-nil.
+    def check_value_empty(data)
+      case @type
+      when 'str', 'text'
+        data.empty?
+      when 'int', 'float', 'enum'
+        # These values are always non-empty
+        false
+      when 'set'
+        data == 0
+      else
+        raise "Invalid type #{@type.inspect} encountered on attribute #{@name.inspect}"
+      end
+    end
   end
 end
