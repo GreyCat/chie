@@ -96,15 +96,14 @@ module Chie
     def get(id)
       validate_id(id)
 
-      basic_json = nil
       @db.query("SELECT _data FROM `#{@name}` WHERE _id=#{id};").each { |row|
         basic_json = row['_data']
+        h = JSON.load(basic_json)
+        resolve_relations(h)
+        return h
       }
-      raise NotFound.new("Invalid query result returned from getting data on ID=#{id}") if basic_json.nil?
-      h = JSON.load(basic_json)
-      resolve_relations(h)
 
-      h
+      raise NotFound.new("Invalid query result returned from getting data on ID=#{id}")
     end
 
     ##
