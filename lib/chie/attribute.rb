@@ -80,7 +80,7 @@ module Chie
     # even non-existent for some. "data" is non-nil.
     def check_value_empty(data)
       case @type
-      when 'str', 'text'
+      when 'str', 'text', 'password'
         data.empty?
       when 'int', 'float', 'enum'
         # These values are always non-empty
