@@ -49,7 +49,7 @@ module Chie
 
     def as_sql_type
       case @type
-      when 'str'
+      when 'str', 'password'
         len = @len || 256
         "VARCHAR(#{len})"
       when 'int', 'set', 'enum'
@@ -65,7 +65,7 @@ module Chie
 
     def sql_value(db, v)
       case @type
-      when 'str', 'text'
+      when 'str', 'text', 'password'
         "'#{db.escape(v)}'"
       when 'int', 'set', 'enum', 'float'
         v
