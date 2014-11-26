@@ -193,6 +193,14 @@ module Chie
       h
     end
 
+    ##
+    # Inserts new record.
+    #
+    # @param [Hash] data record to be inserted
+    # @param [Fixnum, nil] user ID of user that does this operation; by default the user is nil and thus the operation is considered anonymous.
+    # @param [Time, nil] time timestamp of operation; by default, current time would be used
+    # @raise [Chie::ValidationError] if given record has missing or empty mandatory fields
+    # @return [Fixnum] ID of inserted record
     def insert(data, user = nil, time = nil)
       user = parse_user(user)
       time = time_to_mysql(time)
@@ -209,6 +217,10 @@ module Chie
       id
     end
 
+    ##
+    # Replaces the record with a given id with the data in supplied hash.
+    # @param [Fixnum, nil] user ID of user that does this operation; by default the user is nil and thus the operation is considered anonymous.
+    # @param [Time, nil] time timestamp of operation; by default, current time would be used
     def update(id, data, user = nil, time = nil)
       validate_id(id)
       user = parse_user(user)
