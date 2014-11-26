@@ -4,12 +4,38 @@ require 'json'
 require 'chie/entity'
 
 module Chie
+  ##
+  # Internal Chie database error. Usually a situation that should
+  # never happen and designates either a major data corruption or a
+  # (more likely) bug in Chie.
   class InternalError < Exception; end
 
+  ##
+  # Top-level object that handles the connection to the database,
+  # management of data structure scheme and accessing individual
+  # entities for read/write operations.
   class Engine
     DESC_TABLE = '_desc'
     DESC_COLUMN = 'json'
 
+    ##
+    # Initializes the new engine and starts the connection to the
+    # database.
+    #
+    # @overload initialize(opts)
+    #   Connects to the database, specified using hash.
+    #   @param [Hash] opts the options to specify database connection.
+    #   @option opts [String] :host SQL server hostname
+    #   @option opts [Fixnum] :port SQL server port number
+    #   @option opts [String] :username SQL server login to authorize as
+    #   @option opts [String] :password SQL server password to authorize as
+    #   @option opts [String] :database SQL server database name to use
+    #
+    # @overload initialize(cred)
+    #   Connects to the database, specified using URL string. String
+    #   should match general "DATABASE_URL" pattern, i.e. something like
+    #   `http://user:pass@host:port/database`
+    #   @param [String] cred database URL string
     def initialize(cred)
       if cred.is_a?(String)
         uri = URI.parse(cred)
@@ -75,10 +101,17 @@ module Chie
 
     # ========================================================================
 
+    ##
+    # Gets entity by name in this engine.
+    # @param [String] name name of the entity
+    # @return [Entity]
     def entity(name)
       @entities[name]
     end
 
+    ##
+    # Executes some block for each available entity in this engine.
+    # @yield [v] Gives entity to the block
     def each_entity(&block)
       @entities.each_pair { |k, v|
         yield(v)
