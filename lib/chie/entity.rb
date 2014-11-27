@@ -133,15 +133,24 @@ module Chie
           raise "Invalid field name: #{k.inspect}" unless a
           raise "Field #{k.inspect} is not indexed" unless a.indexed?
 
-          if v.is_a?(String)
-            vv = "'#{@db.escape(v)}'"
-          elsif v.is_a?(Numeric)
-            vv = v.to_s
+          # Try to convert value directly
+          vv = escape_value(v)
+          if not vv.nil?
+            # if successful - it's an equality match against that value
+            op = '='
+          elsif v.is_a?(Array) and v.size == 2
+            # otherwise try [operator, value] array match
+            vv = escape_value(v[1])
+            unless vv.nil?
+              op = v[0]
+            else
+              raise "Unable to parse value in tuple condition #{v.inspect} for field #{k.inspect}"
+            end
           else
             raise "Unable to parse value #{v.inspect} for field #{k.inspect}"
           end
 
-          where << "`#{k}`=#{vv}"
+          where << "`#{k}` #{op} #{vv}"
         }
         q << ' WHERE '
         q << where.join(' AND ')
@@ -379,6 +388,20 @@ module Chie
     def time_to_mysql(time)
       time = Time.now if time.nil?
       time.to_i
+    end
+
+    ##
+    # Converts a given value to a string, safe to be used in SQL statement.
+    # @return [String, nil] escaped and quoted string, safe to be used
+    #   in SQL statement, or nil if the conversion wasn't possible
+    def escape_value(v)
+      if v.is_a?(String)
+        "'#{@db.escape(v)}'"
+      elsif v.is_a?(Numeric)
+        v.to_s
+      else
+        nil
+      end
     end
   end
 end

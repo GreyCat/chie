@@ -105,6 +105,12 @@ describe Entity do
     expect(@book.list(where: {'yr' => SIMPLE_RECORD_2['yr']}).count).to eq(1)
   end
 
+  it 'should be able to list entities by name with LIKE operator' do
+    expect(@book.list(where: {'name' => ['LIKE', 'foo']}).count).to eq(0)
+    expect(@book.list(where: {'name' => ['LIKE', 'Lor%']}).count).to eq(1)
+    expect(@book.list(where: {'name' => ['LIKE', '%i%']}).count).to eq(2)
+  end
+
   context 'book->source relation' do
     SOURCE_SCHEME = {
       'attr' => [
