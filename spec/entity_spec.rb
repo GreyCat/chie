@@ -97,6 +97,14 @@ describe Entity do
     }
   end
 
+  it 'should be able to list all entities with no where phrase' do
+    expect(@book.list.count).to eq(2)
+  end
+
+  it 'should be able to list all entities with empty where phrase' do
+    expect(@book.list(where: {}).count).to eq(2)
+  end
+
   it 'should be able to list entities by name and year' do
     expect(@book.list(where: {'name' => 'foo'}).count).to eq(0)
     expect(@book.list(where: {'name' => SIMPLE_RECORD['name']}).count).to eq(1)

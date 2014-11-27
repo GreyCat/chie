@@ -121,12 +121,12 @@ module Chie
     #   value is 10.
     # * :page - output only records on specified page of pages, each
     #   containing `per_page` records; first page is #1.
-    def list(opt)
+    def list(opt = {})
       fields = opt[:fields] ? opt[:fields].join(',') : '*'
 
       q = "SELECT #{fields} FROM `#{@name}`"
 
-      if opt[:where]
+      if opt[:where] and not opt[:where].empty?
         where = []
         opt[:where].each_pair { |k, v|
           a = @attr_by_name[k]
