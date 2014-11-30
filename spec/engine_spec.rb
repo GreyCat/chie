@@ -4,19 +4,8 @@ require 'mysql2'
 
 SIMPLE_SCHEMA = {
   'attr' => [
-    {
-      'name' => 'name',
-      'type' => 'str',
-      'len' => 100,
-      'mand' => true,
-      'ind' => true,
-    },
-    {
-      'name' => 'yr',
-      'type' => 'int',
-      'mand' => false,
-      'ind' => true,
-    },
+    {'name' => 'name', 'type' => 'str', 'len' => 100, 'mand' => true, 'ind' => true},
+    {'name' => 'yr', 'type' => 'int', 'mand' => false, 'ind' => true},
   ]
 }
 
@@ -75,6 +64,41 @@ describe Engine do
       cnt = 0
       @e.each_entity { cnt += 1 }
       expect(cnt).to eq(0)
+    end
+  end
+
+  context 'creation of two multi-related entities' do
+    SERIES_SCHEMA = {
+      'attr' => [
+        {'name' => 'name', 'type' => 'str', 'len' => 100, 'mand' => true, 'ind' => true},
+      ],
+      'rel' => [
+        {'name' => 'series_book', 'target' => 'book', 'type' => '0n'},
+      ],
+    }
+
+    before(:all) do
+      sqlclear
+      @e = Engine.new(CREDENTIALS)
+    end
+
+    it 'should be able to create series with multiple relation to book' do
+      book = @e.entity_create(Entity.new('book', SIMPLE_SCHEMA))
+      series = @e.entity_create(Entity.new('series', SERIES_SCHEMA))
+
+      expect(series).to be_kind_of(Entity)
+      expect(@e.entity('series')).to eq(series)
+
+      r = sqldump.root.elements
+      expect(r.to_a('//table_structure[@name="series"]/field').map { |x| x.to_s }).to eq([
+          "<field Comment='' Extra='auto_increment' Field='_id' Key='PRI' Null='NO' Type='int(11)'/>",
+          "<field Comment='' Extra='' Field='_data' Key='' Null='YES' Type='mediumtext'/>",
+          "<field Comment='' Extra='' Field='name' Key='' Null='YES' Type='varchar(100)'/>",
+      ])
+      expect(r.to_a('//table_structure[@name="series_book"]/field').map { |x| x.to_s }).to eq([
+          "<field Comment='' Extra='' Field='series' Key='' Null='NO' Type='int(11)'/>",
+          "<field Comment='' Extra='' Field='book' Key='' Null='NO' Type='int(11)'/>",
+      ])
     end
   end
 
