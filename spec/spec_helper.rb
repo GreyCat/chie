@@ -29,5 +29,5 @@ end
 
 def sqldump
   dump_xml = `mysqldump --xml --user='#{CREDENTIALS[:username]}' --password='#{CREDENTIALS[:password]}' '#{CREDENTIALS[:database]}'`
-  doc = REXML::Document.new(dump_xml)
+  doc = REXML::Document.new(dump_xml, ignore_whitespace_nodes: :all)
 end
