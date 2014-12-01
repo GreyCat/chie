@@ -211,19 +211,10 @@ module Chie
     # @raise [Chie::ValidationError] if given record has missing or empty mandatory fields
     # @return [Fixnum] ID of inserted record
     def insert(data, user = nil, time = nil)
-      user = parse_user(user)
-      time = time_to_mysql(time)
-
       check_mandatories(data)
       cols = generate_sql_columns(data)
-      col_names = cols.keys.map { |x| "`#{x}`" }.join(',')
-      col_vals = cols.values.join(',')
 
-      @db.query("INSERT INTO `#{@name}` (#{col_names}) VALUES (#{col_vals});")
-      id = @db.last_id
-      @db.query("INSERT INTO `#{@name}_h` (_id, _data, ts, user_id) VALUES (#{id}, #{cols['_data']}, #{time}, #{user});")
-
-      id
+      real_insert(data, cols, user, time)
     end
 
     ##
@@ -232,14 +223,10 @@ module Chie
     # @param [Time, nil] time timestamp of operation; by default, current time would be used
     def update(id, data, user = nil, time = nil)
       validate_id(id)
-      user = parse_user(user)
-      time = time_to_mysql(time)
 
       check_mandatories(data)
       cols = generate_sql_columns(data)
       cols['_id'] = id
-      col_names = cols.keys.map { |x| "`#{x}`" }.join(',')
-      col_vals = cols.values.join(',')
 
       # Check if exactly the same data is already in the database; if it is, don't do any writes
       exist_json = nil
@@ -249,8 +236,7 @@ module Chie
       }
       if data.to_json != exist_json
         @db.query("DELETE FROM `#{@name}` WHERE _id=#{id};")
-        @db.query("INSERT INTO `#{@name}` (#{col_names}) VALUES (#{col_vals});")
-        @db.query("INSERT INTO `#{@name}_h` (_id, _data, ts, user_id) VALUES (#{id}, #{cols['_data']}, #{time}, #{user});")
+        real_insert(data, cols, user, time)
       end
       # TODO: end transaction here
     end
@@ -292,6 +278,48 @@ module Chie
     end
 
     private
+    ##
+    # Performs the actual insert of prepared columns into relevant
+    # tables. This code is shared between `insert` and `update`
+    # operations to make sure it always does the same, no matter what
+    # was the operation.
+    #
+    # @param [Hash] data data to be inserted; would be used only to
+    # perform additional inserts for multi relations.
+    # @param [Hash<String, String>] cols prepared string-to-string
+    # key-value pairs with column names and relevant string content
+    # (already quoted, if required).
+    # @param [Fixnum] user ID of user that does this operation; by default the user is nil and thus the operation is considered anonymous.
+    # @param [Time] time timestamp of operation; if nil, current time would be used.
+    #
+    # @return [Fixnum] ID of inserted record
+    def real_insert(data, cols, user, time)
+      user = parse_user(user)
+      time = time_to_mysql(time)
+
+      col_names = cols.keys.map { |x| "`#{x}`" }.join(',')
+      col_vals = cols.values.join(',')
+
+      # Main table
+      @db.query("INSERT INTO `#{@name}` (#{col_names}) VALUES (#{col_vals});")
+      id = @db.last_id
+
+      # History table
+      @db.query("INSERT INTO `#{@name}_h` (_id, _data, ts, user_id) VALUES (#{id}, #{cols['_data']}, #{time}, #{user});")
+
+      # Relation link tables
+      each_rel { |r|
+        if r.multi?
+          vv = data[r.name]
+          vv.each { |v|
+            @db.query("INSERT INTO `#{r.name}` (`#{@name}`, `#{r.target}`) VALUES (#{id}, #{v});")
+          } unless vv.nil?
+        end
+      }
+
+      id
+    end
+
     def validate_id(id)
       raise "ID must be integer, but got #{id.inspect}" unless id.is_a?(Fixnum)
     end
