@@ -100,6 +100,29 @@ describe Engine do
           "<field Comment='' Extra='' Field='book' Key='MUL' Null='NO' Type='int(11)'/>",
       ])
     end
+
+    it 'should maintain link table when inserting data into entity with relation' do
+      book = @e.entity('book')
+      id1 = book.insert({'name' => 'Foo'})
+      id2 = book.insert({'name' => 'Bar'})
+
+      series = @e.entity('series')
+      id_series = series.insert({'name' => 'Series', 'series_book' => [id1, id2]})
+
+      expect(series.get(id_series)).to eq({
+        'name' => 'Series',
+        'series_book' => [
+          {'_id' => id1, 'name' => 'Foo'},
+          {'_id' => id2, 'name' => 'Bar'},
+        ],
+      })
+
+      r = sqldump.root.elements
+      expect(r.to_a('//table_data[@name="series_book"]/row').map { |x| x.to_s }).to eq([
+          "<row><field name='series'>1</field><field name='book'>1</field></row>",
+          "<row><field name='series'>1</field><field name='book'>2</field></row>",
+      ])
+    end
   end
 
   context 'creation of mixed indexable and non-indexable columns' do
