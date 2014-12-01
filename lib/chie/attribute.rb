@@ -1,6 +1,6 @@
 module Chie
   class Attribute
-    attr_reader :name, :type, :indexed, :len, :values
+    attr_reader :name, :type, :indexed, :len, :values, :unit
 
     def initialize(h)
       @name = h['name']
@@ -12,6 +12,7 @@ module Chie
 
       @len = h['len']
       @values = h['values']
+      @unit = h['unit']
 
       @mandatory = h['mand'] || false
       @indexed = h['ind'] || false
@@ -43,6 +44,7 @@ module Chie
 
       h['len'] = @len if @len
       h['values'] = @values if @values
+      h['unit'] = @unit if @unit
 
       h.to_json(opt)
     end
