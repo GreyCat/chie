@@ -136,6 +136,19 @@ module Chie
       ) DEFAULT CHARSET=utf8;
       __EOS__
 
+      # Create tables for multi relations
+      ent.each_rel { |r|
+        next unless r.multi?
+        @db.query <<-__EOS__
+        CREATE TABLE `#{r.name}` (
+          `#{ent.name}` INT NOT NULL,
+          `#{r.target}` INT NOT NULL,
+          INDEX idx_1 (`#{ent.name}`),
+          INDEX idx_2 (`#{r.target}`)
+        ) DEFAULT CHARSET=utf8;
+        __EOS__
+      }
+
       @entities[ent.name] = ent
       desc_save
 
