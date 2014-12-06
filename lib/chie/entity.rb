@@ -130,8 +130,14 @@ module Chie
         where = []
         opt[:where].each_pair { |k, v|
           a = @attr_by_name[k]
-          raise "Invalid field name: #{k.inspect}" unless a
-          raise "Field #{k.inspect} is not indexed" unless a.indexed?
+          r = @rel_by_name[k]
+          if a
+            raise "Field #{k.inspect} is not indexed" unless a.indexed?
+          elsif r
+            raise "Unable to match against multi-relation #{k.inspect}" if r.multi?
+          else
+            raise "Invalid field name: #{k.inspect}" unless a
+          end
 
           # Try to convert value directly
           vv = escape_value(v)
