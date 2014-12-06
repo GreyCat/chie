@@ -191,6 +191,24 @@ describe Entity do
         }],
       })
     end
+
+    it 'should be able to insert more sources and articles' do
+      @source = @e.entity('source')
+      @source.insert('name' => 'Source 2')
+
+      @article = @e.entity('article')
+      @article.insert('name' => 'Another article from Source', 'source' => 1)
+      @article.insert('name' => 'Article from Source 2', 'source' => 2)
+
+      expect(@source.count).to eq(2)
+      expect(@article.count).to eq(3)
+    end
+
+    it 'should be able to list articles by source' do
+      @article = @e.entity('article')
+      expect(@article.list(where: {'source' => 1}).count).to eq(2)
+      expect(@article.list(where: {'source' => 2}).count).to eq(1)
+    end
   end
 
   context 'book->source relation, reloaded' do
