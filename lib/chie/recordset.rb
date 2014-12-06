@@ -1,3 +1,5 @@
+require 'chie/record'
+
 module Chie
   class RecordSet
     def initialize(result, opt)
