@@ -6,7 +6,7 @@ module Chie
     end
 
     def each(&block)
-      @result.each { |x| yield(x) }
+      @result.each { |x| yield(Record.new(x)) }
     end
 
     def current_page
