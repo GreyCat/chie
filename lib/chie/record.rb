@@ -27,5 +27,13 @@ module Chie
     def data
       @data ||= JSON.load(@result['_data'])
     end
+
+    def to_s
+      data.to_s
+    end
+
+    def inspect
+      data.inspect
+    end
   end
 end
