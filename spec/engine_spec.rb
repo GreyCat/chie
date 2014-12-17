@@ -96,8 +96,8 @@ describe Engine do
           "<field Comment='' Extra='' Field='name' Key='' Null='YES' Type='varchar(100)'/>",
       ])
       expect(r.to_a('//table_structure[@name="series_book"]/field').map { |x| x.to_s }).to eq([
-          "<field Comment='' Extra='' Field='series' Key='MUL' Null='NO' Type='int(11)'/>",
-          "<field Comment='' Extra='' Field='book' Key='MUL' Null='NO' Type='int(11)'/>",
+          "<field Comment='' Extra='' Field='series' Key='PRI' Null='NO' Type='int(11)'/>",
+          "<field Comment='' Extra='' Field='book' Key='PRI' Null='NO' Type='int(11)'/>",
       ])
     end
 

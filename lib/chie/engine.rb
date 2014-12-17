@@ -144,7 +144,8 @@ module Chie
           `#{ent.name}` INT NOT NULL,
           `#{r.target}` INT NOT NULL,
           INDEX idx_1 (`#{ent.name}`),
-          INDEX idx_2 (`#{r.target}`)
+          INDEX idx_2 (`#{r.target}`),
+          PRIMARY KEY (`#{ent.name}`, `#{r.target}`)
         ) DEFAULT CHARSET=utf8;
         __EOS__
       }
