@@ -228,4 +228,89 @@ describe Entity do
       })
     end
   end
+
+  context 'person<->book multi relation' do
+    PERSON_SCHEME = {
+      'attr' => [
+        {'name' => 'name', 'type' => 'str', 'ind' => true},
+      ]
+    }
+
+    BOOK_SCHEME = {
+      'attr' => [
+        {'name' => 'name', 'type' => 'str', 'ind' => true},
+      ],
+      'rel' => [
+        {
+          'name' => 'author',
+          'target' => 'person',
+          'type' => '0n',
+        }
+      ]
+    }
+
+    before(:all) do
+      sqlclear
+      @e = Engine.new(CREDENTIALS)
+    end
+
+    it 'should be able to create two related entities' do
+      @person = @e.entity_create(Entity.new('person', PERSON_SCHEME))
+      @book = @e.entity_create(Entity.new('book', BOOK_SCHEME))
+
+      expect(@e.entity('person')).to eq(@person)
+      expect(@e.entity('book')).to eq(@book)
+    end
+
+    it 'should be able to insert 2 persons' do
+      @person = @e.entity('person')
+      @person.insert('name' => 'Person 1')
+      @person.insert('name' => 'Person 2')
+      expect(@person.count).to eq(2)
+    end
+
+    it 'should be able to insert book without author' do
+      @book = @e.entity('book')
+      @book.insert('name' => 'Anonymous book')
+      expect(@book.count).to eq(1)
+    end
+
+    it 'should be able to insert book with author #1' do
+      @book = @e.entity('book')
+      @book.insert('name' => 'Book #2', 'author' => [1])
+      expect(@book.count).to eq(2)
+    end
+
+    it 'should be able to insert book co-authored by persons #1 and #2' do
+      @book = @e.entity('book')
+      @book.insert('name' => 'Co-authored #1', 'author' => [1, 2])
+      expect(@book.count).to eq(3)
+    end
+
+    it 'should be able to insert another co-authored book' do
+      @book = @e.entity('book')
+      @book.insert('name' => 'Co-authored #2', 'author' => [1, 2])
+      expect(@book.count).to eq(4)
+    end
+
+    it 'should return properly all books by person #1' do
+      @book = @e.entity('book')
+      book_ids = []
+      @book.list(:where => {'author' => 1}).each { |rec|
+        book_ids << rec['_id']
+      }
+      book_ids.sort!
+      expect(book_ids).to eq([2, 3, 4])
+    end
+
+    it 'should be able to update author of Book #2 to another single author' do
+      @book = @e.entity('book')
+      @book.update(2, 'name' => 'Book #2', 'author' => [2])
+    end
+
+    it 'should be able to update author of Book #2 to co-authored' do
+      @book = @e.entity('book')
+      @book.update(2, 'name' => 'Book #2', 'author' => [1, 2])
+    end
+  end
 end

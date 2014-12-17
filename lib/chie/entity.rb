@@ -241,7 +241,14 @@ module Chie
         exist_json = row['_data']
       }
       if data.to_json != exist_json
+        # Delete original record
         @db.query("DELETE FROM `#{@name}` WHERE _id=#{id};")
+
+        # Delete multi relations
+        each_rel { |r|
+          @db.query("DELETE FROM `#{r.name}` WHERE `#{@name}`=#{id};") if r.multi?
+        }
+
         real_insert(data, cols, user, time)
       end
       # TODO: end transaction here
