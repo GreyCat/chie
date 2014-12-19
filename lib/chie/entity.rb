@@ -140,9 +140,18 @@ module Chie
     # * :page - output only records on specified page of pages, each
     #   containing `per_page` records; first page is #1.
     def list(opt = {})
-      fields = opt[:fields] ? opt[:fields].join(',') : '*'
+      fields = opt[:fields] || ['*']
 
-      q = "SELECT #{fields} FROM `#{@name}`"
+      # Header field handling
+      if header.size == 1
+        header_exp = "`#{header.first.name}`"
+      else
+        header_fields = header.map { |a| "`#{a.name}`" }.join(",' ',")
+        header_exp = "CONCAT(#{header_fields})"
+      end
+      fields << "#{header_exp} AS _header"
+
+      q = "SELECT #{fields.join(',')} FROM `#{@name}`"
 
       if opt[:where] and not opt[:where].empty?
         where = []
@@ -180,7 +189,8 @@ module Chie
         q << where.join(' AND ')
       end
 
-      q << " ORDER BY `name`"
+      order_by = header.map { |x| "`#{x.name}`" }.join(', ')
+      q << " ORDER BY #{order_by}"
       opt2 = {}
 
       if opt[:page]

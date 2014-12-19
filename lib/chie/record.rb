@@ -24,6 +24,13 @@ module Chie
       end
     end
 
+    ##
+    # Gets a string sum of header fields for a particular record,
+    # prepared in "_header" calculated field.
+    def header
+      @result['_header']
+    end
+
     def data
       @data ||= JSON.load(@result['_data'])
     end
