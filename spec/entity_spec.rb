@@ -321,13 +321,6 @@ describe Entity do
       ],
     }
 
-    ONE_HEADER_FIELD_SCHEME = {
-      'attr' => [
-        {'name' => 'filename', 'type' => 'str', 'ind' => true},
-      ],
-      'header' => ['filename'],
-    }
-
     before(:all) do
       sqlclear
       @e = Engine.new(CREDENTIALS)
@@ -341,8 +334,15 @@ describe Entity do
     end
 
     context 'one custom header field entity' do
+      SCHEME_1COL = {
+        'attr' => [
+          {'name' => 'filename', 'type' => 'str', 'ind' => true},
+        ],
+        'header' => ['filename'],
+      }
+
       it 'can create entity' do
-        @book = Entity.new('book', ONE_HEADER_FIELD_SCHEME)
+        @book = Entity.new('book', SCHEME_1COL)
         @e.entity_create(@book)
       end
 
@@ -357,6 +357,40 @@ describe Entity do
         @book.list.each { |row|
           expect(row.header).to eq('Foo')
         }
+      end
+    end
+
+    context 'two custom header fields entity' do
+      SCHEME_2COL = {
+        'attr' => [
+          {'name' => 'first_name', 'type' => 'str', 'ind' => true},
+          {'name' => 'last_name', 'type' => 'str', 'ind' => true},
+        ],
+        'header' => ['last_name', 'first_name'],
+      }
+
+      it 'can create entity' do
+        @person = Entity.new('person', SCHEME_2COL)
+        @e.entity_create(@person)
+      end
+
+      it 'can insert record into one custom header entity' do
+        @person = @e.entity('person')
+        @person.insert('first_name' => 'John', 'last_name' => 'Smith')
+        @person.insert('first_name' => 'Bill', 'last_name' => 'Allen')
+        @person.insert('first_name' => 'William', 'last_name' => 'Harris')
+        expect(@person.count).to eq(3)
+      end
+
+      it 'can see proper headers in listing' do
+        @person = @e.entity('person')
+        r = []
+        @person.list.each { |row| r << row.header }
+        expect(r).to eq([
+          'Allen Bill',
+          'Harris William',
+          'Smith John',
+        ])
       end
     end
   end
