@@ -99,24 +99,34 @@ describe Entity do
 
   it 'should be able to list all entities with no where phrase' do
     expect(@book.list.count).to eq(2)
+    expect(@book.count).to eq(2)
   end
 
   it 'should be able to list all entities with empty where phrase' do
     expect(@book.list(where: {}).count).to eq(2)
+    expect(@book.count(where: {})).to eq(2)
   end
 
   it 'should be able to list entities by name and year' do
     expect(@book.list(where: {'name' => 'foo'}).count).to eq(0)
+    expect(@book.count(where: {'name' => 'foo'})).to eq(0)
     expect(@book.list(where: {'name' => SIMPLE_RECORD['name']}).count).to eq(1)
+    expect(@book.count(where: {'name' => SIMPLE_RECORD['name']})).to eq(1)
     expect(@book.list(where: {'name' => SIMPLE_RECORD_2['name']}).count).to eq(1)
+    expect(@book.count(where: {'name' => SIMPLE_RECORD_2['name']})).to eq(1)
     expect(@book.list(where: {'yr' => SIMPLE_RECORD['yr']}).count).to eq(1)
+    expect(@book.count(where: {'yr' => SIMPLE_RECORD['yr']})).to eq(1)
     expect(@book.list(where: {'yr' => SIMPLE_RECORD_2['yr']}).count).to eq(1)
+    expect(@book.count(where: {'yr' => SIMPLE_RECORD_2['yr']})).to eq(1)
   end
 
   it 'should be able to list entities by name with LIKE operator' do
     expect(@book.list(where: {'name' => ['LIKE', 'foo']}).count).to eq(0)
+    expect(@book.count(where: {'name' => ['LIKE', 'foo']})).to eq(0)
     expect(@book.list(where: {'name' => ['LIKE', 'Lor%']}).count).to eq(1)
+    expect(@book.count(where: {'name' => ['LIKE', 'Lor%']})).to eq(1)
     expect(@book.list(where: {'name' => ['LIKE', '%i%']}).count).to eq(2)
+    expect(@book.count(where: {'name' => ['LIKE', '%i%']})).to eq(2)
   end
 
   context 'book->source relation' do

@@ -102,9 +102,18 @@ module Chie
 
     # ========================================================================
 
-    def count
+    ##
+    # Counts number of records in collection. An optional hash with
+    # conditions can be passed to count a number of records that match
+    # given condition.
+    #
+    # @see Entity#list
+    # @see Entity#list_where_phrase
+    def count(opt = {})
+      where_phrase = list_where_phrase(opt[:where])
+
       cnt = nil
-      @db.query("SELECT COUNT(*) AS cnt FROM `#{@name}`;").each { |row|
+      @db.query("SELECT COUNT(*) AS cnt FROM `#{@name}` #{where_phrase};").each { |row|
         cnt = row['cnt']
       }
       raise "Invalid query result returned from counting rows in #{name.inspect}" if cnt.nil?
@@ -497,7 +506,7 @@ module Chie
         where << "`#{k}` #{op} #{vv}"
       }
 
-      " WHERE #{where.join(' AND ')}"
+      "WHERE #{where.join(' AND ')}"
     end
   end
 end
