@@ -26,6 +26,7 @@ module Chie
       @name = name
       @title = h['title']
       parse_attr(h['attr'] || [])
+      parse_header(h['header'])
       parse_rel(h['rel'] || [])
     end
 
@@ -39,6 +40,23 @@ module Chie
         @attr_by_name[attr.name] = attr
         @attrs << attr.name
       }
+    end
+
+    ##
+    # Parses header fields array, replacing attribute names with
+    # references to real attribute objects.
+    def parse_header(h_header)
+      if h_header.nil?
+        attr = @attr_by_name['name']
+        raise "Weird schema: entity must include attribute \"name\" or specify alternative header fields" unless attr
+        @header = [attr]
+      else
+        @header = h_header.map { |a|
+          attr = @attr_by_name[a]
+          raise "Weird schema: header field includes attribute #{a.inspect}, but it doesn't exist" unless attr
+          attr
+        }
+      end
     end
 
     def parse_rel(h_rel)
@@ -55,7 +73,7 @@ module Chie
 
     # ========================================================================
 
-    attr_reader :attrs, :rels
+    attr_reader :attrs, :rels, :header
 
     def title
       @title || @name
