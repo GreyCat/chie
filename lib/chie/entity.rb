@@ -114,7 +114,7 @@ module Chie
     def get(id)
       validate_id(id)
 
-      @db.query("SELECT _data FROM `#{@name}` WHERE _id=#{id};").each { |row|
+      @db.query("SELECT _data, #{sql_header_field} FROM `#{@name}` WHERE _id=#{id};").each { |row|
         basic_json = row['_data']
         h = JSON.load(basic_json)
         resolve_relations(h)
@@ -141,15 +141,7 @@ module Chie
     #   containing `per_page` records; first page is #1.
     def list(opt = {})
       fields = opt[:fields] || ['*']
-
-      # Header field handling
-      if header.size == 1
-        header_exp = "`#{header.first.name}`"
-      else
-        header_fields = header.map { |a| "`#{a.name}`" }.join(",' ',")
-        header_exp = "CONCAT(#{header_fields})"
-      end
-      fields << "#{header_exp} AS _header"
+      fields << sql_header_field
 
       q = "SELECT #{fields.join(',')} FROM `#{@name}`"
 
@@ -471,6 +463,20 @@ module Chie
       else
         nil
       end
+    end
+
+    ##
+    # Returns SQL SELECT expression for a special column that would
+    # represent all header fields properly concatenated using SQL
+    # server syntax.
+    def sql_header_field
+      if header.size == 1
+        header_exp = "`#{header.first.name}`"
+      else
+        header_fields = header.map { |a| "`#{a.name}`" }.join(",' ',")
+        header_exp = "CONCAT(#{header_fields})"
+      end
+      "#{header_exp} AS _header"
     end
   end
 end
