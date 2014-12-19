@@ -313,4 +313,51 @@ describe Entity do
       @book.update(2, 'name' => 'Book #2', 'author' => [1, 2])
     end
   end
+
+  context 'header fields handling' do
+    INVALID_SCHEME = {
+      'attr' => [
+        {'name' => 'filename', 'type' => 'str', 'ind' => true},
+      ],
+    }
+
+    ONE_HEADER_FIELD_SCHEME = {
+      'attr' => [
+        {'name' => 'filename', 'type' => 'str', 'ind' => true},
+      ],
+      'header' => ['filename'],
+    }
+
+    before(:all) do
+      sqlclear
+      @e = Engine.new(CREDENTIALS)
+    end
+
+    it 'should refuse to create entity without default header field "name"' do
+      expect {
+        @book = Entity.new('book', INVALID_SCHEME)
+        @e.entity_create(@book)
+      }.to raise_error
+    end
+
+    context 'one custom header field entity' do
+      it 'can create entity' do
+        @book = Entity.new('book', ONE_HEADER_FIELD_SCHEME)
+        @e.entity_create(@book)
+      end
+
+      it 'can insert record into one custom header entity' do
+        @book = @e.entity('book')
+        @book.insert('filename' => 'Foo')
+        expect(@book.count).to eq(1)
+      end
+
+      it 'can see proper headers in listing' do
+        @book = @e.entity('book')
+        @book.list.each { |row|
+          expect(row.header).to eq('Foo')
+        }
+      end
+    end
+  end
 end
