@@ -120,6 +120,7 @@ module Chie
 
     def entity_create(ent)
       ent.db = @db
+      ent.engine = self
 
       raise "Duplicate entity #{ent.name.inspect}" if @entities[ent.name]
 

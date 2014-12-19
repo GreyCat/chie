@@ -18,6 +18,7 @@ module Chie
   class Entity
     attr_reader :name
     attr_accessor :db
+    attr_accessor :engine
 
     def initialize(name, h)
       Engine::validate_sql_name(name)
