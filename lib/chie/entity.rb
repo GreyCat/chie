@@ -117,6 +117,7 @@ module Chie
       @db.query("SELECT _data, #{sql_header_field} FROM `#{@name}` WHERE _id=#{id};").each { |row|
         basic_json = row['_data']
         h = JSON.load(basic_json)
+        h['_header'] = row['_header']
         resolve_relations(h)
         return h
       }
@@ -428,7 +429,7 @@ module Chie
         @db.query("SELECT _id, name FROM `#{r.target}` WHERE _id IN (#{v.join(',')});").each { |row|
           resolved << {
             '_id' => row['_id'],
-            'name' => row['name'],
+            '_header' => row['name'],
           }
         }
 
