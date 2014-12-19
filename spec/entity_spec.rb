@@ -344,25 +344,25 @@ describe Entity do
       }
 
       it 'can create entity' do
-        @book = Entity.new('book', SCHEME_1COL)
-        @e.entity_create(@book)
+        @file = Entity.new('file', SCHEME_1COL)
+        @e.entity_create(@file)
       end
 
       it 'can insert record into one custom header entity' do
-        @book = @e.entity('book')
-        @book.insert('filename' => 'Foo')
-        expect(@book.count).to eq(1)
+        @file = @e.entity('file')
+        @file.insert('filename' => 'Foo')
+        expect(@file.count).to eq(1)
       end
 
       it 'can get proper header for one record' do
-        @book = @e.entity('book')
-        r = @book.get(1)
+        @file = @e.entity('file')
+        r = @file.get(1)
         expect(r['_header']).to eq('Foo')
       end
 
       it 'can see proper headers in listing' do
-        @book = @e.entity('book')
-        @book.list.each { |row|
+        @file = @e.entity('file')
+        @file.list.each { |row|
           expect(row.header).to eq('Foo')
         }
       end
@@ -404,6 +404,40 @@ describe Entity do
           'Allen Bill',
           'Harris William',
           'Smith John',
+        ])
+      end
+    end
+
+    context 'book <-> person with two custom header fields' do
+      SCHEME_BOOK = {
+        'attr' => [
+          {'name' => 'heading', 'type' => 'str', 'ind' => true},
+          {'name' => 'yr', 'type' => 'int', 'ind' => true},
+        ],
+        'header' => ['heading', 'yr'],
+        'rel' => [
+          {'name' => 'author', 'target' => 'person', 'type' => '0n'}
+        ],
+      }
+
+      it 'can create linked entity' do
+        @book = Entity.new('book', SCHEME_BOOK)
+        @e.entity_create(@book)
+      end
+
+      it 'can insert authored book' do
+        @book = @e.entity('book')
+        @book.insert('heading' => 'About foo', 'yr' => 2000, 'author' => [1, 2])
+        expect(@book.count).to eq(1)
+      end
+
+      it 'can properly get record back with all entities resolved' do
+        @book = @e.entity('book')
+        rec = @book.get(1)
+        expect(rec['_header']).to eq('About foo 2000')
+        expect(rec['author']).to eq([
+          {'_id' => 1, '_header' => 'Smith John'},
+          {'_id' => 2, '_header' => 'Allen Bill'},
         ])
       end
     end
