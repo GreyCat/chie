@@ -422,15 +422,17 @@ module Chie
         v = h[r.name]
         next if v.nil? or (v.respond_to?(:empty?) and v.empty?)
 
+        tgt_ent = @engine.entity(r.target)
+
         # Wrap single scalar value in array, if it's type "01" or "1" relation
         v = [v] unless v.respond_to?(:join)
 
         # Resolve all related entities' IDs with names
         resolved = []
-        @db.query("SELECT _id, name FROM `#{r.target}` WHERE _id IN (#{v.join(',')});").each { |row|
+        @db.query("SELECT _id, #{tgt_ent.sql_header_field} FROM `#{r.target}` WHERE _id IN (#{v.join(',')});").each { |row|
           resolved << {
             '_id' => row['_id'],
-            '_header' => row['name'],
+            '_header' => row['_header'],
           }
         }
 
@@ -471,6 +473,7 @@ module Chie
     # Returns SQL SELECT expression for a special column that would
     # represent all header fields properly concatenated using SQL
     # server syntax.
+    protected
     def sql_header_field
       if header.size == 1
         header_exp = "`#{header.first.name}`"
