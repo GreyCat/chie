@@ -78,6 +78,7 @@ module Chie
       desc['entities'].each_pair { |k, v|
         ent = Entity.new(k, v)
         ent.db = @db
+        ent.engine = self
         @entities[k] = ent
       }
     end
