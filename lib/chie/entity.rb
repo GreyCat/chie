@@ -448,6 +448,19 @@ module Chie
       "#{header_exp} AS _header"
     end
 
+    ##
+    # Returns SQL WHERE phrase (including WHERE keyword) that will
+    # filter SELECT using given conditions.
+    #
+    # @param [Hash] opt_where option hash that describes search
+    #   condition; all keys in this hash are supposed to be attribute
+    #   names to be matched; values can take one of two forms - either
+    #   an immediate value (which results in equality matching for
+    #   that value) or an [operator; value] tuple (which results in
+    #   "attribute operator value" clause); all options are always
+    #   connected with AND operators.
+    # @return [String] WHERE phrase to fulfill given search condition
+    #   request
     private
     def list_where_phrase(opt_where)
       return '' if opt_where.nil? or opt_where.empty?
