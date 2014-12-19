@@ -144,54 +144,18 @@ module Chie
     def list(opt = {})
       fields = opt[:fields] || ['*']
       fields << sql_header_field
-
-      q = "SELECT #{fields.join(',')} FROM `#{@name}`"
-
-      if opt[:where] and not opt[:where].empty?
-        where = []
-        opt[:where].each_pair { |k, v|
-          a = @attr_by_name[k]
-          r = @rel_by_name[k]
-          if a
-            raise "Field #{k.inspect} is not indexed" unless a.indexed?
-          elsif r
-            raise "Unable to match against multi-relation #{k.inspect}" if r.multi?
-          else
-            raise "Invalid field name: #{k.inspect}" unless a
-          end
-
-          # Try to convert value directly
-          vv = escape_value(v)
-          if not vv.nil?
-            # if successful - it's an equality match against that value
-            op = '='
-          elsif v.is_a?(Array) and v.size == 2
-            # otherwise try [operator, value] array match
-            vv = escape_value(v[1])
-            unless vv.nil?
-              op = v[0]
-            else
-              raise "Unable to parse value in tuple condition #{v.inspect} for field #{k.inspect}"
-            end
-          else
-            raise "Unable to parse value #{v.inspect} for field #{k.inspect}"
-          end
-
-          where << "`#{k}` #{op} #{vv}"
-        }
-        q << ' WHERE '
-        q << where.join(' AND ')
-      end
-
+      where_phrase = list_where_phrase(opt[:where])
       order_by = header.map { |x| "`#{x.name}`" }.join(', ')
-      q << " ORDER BY #{order_by}"
+
+      q = "SELECT #{fields.join(',')} FROM `#{@name}` #{where_phrase} ORDER BY #{order_by}"
+
       opt2 = {}
 
       if opt[:page]
         per_page = opt[:per_page].to_i || 10
         opt2[:per_page] = per_page
 
-        @db.query("SELECT COUNT(*) AS cnt FROM `#{@name}`").each { |row|
+        @db.query("SELECT COUNT(*) AS cnt FROM `#{@name}` #{where_phrase}").each { |row|
           opt2[:total_count] = row['cnt']
         }
 
@@ -482,6 +446,45 @@ module Chie
         header_exp = "CONCAT(#{header_fields})"
       end
       "#{header_exp} AS _header"
+    end
+
+    private
+    def list_where_phrase(opt_where)
+      return '' if opt_where.nil? or opt_where.empty?
+
+      where = []
+      opt_where.each_pair { |k, v|
+        a = @attr_by_name[k]
+        r = @rel_by_name[k]
+        if a
+          raise "Field #{k.inspect} is not indexed" unless a.indexed?
+        elsif r
+          raise "Unable to match against multi-relation #{k.inspect}" if r.multi?
+        else
+          raise "Invalid field name: #{k.inspect}" unless a
+        end
+
+        # Try to convert value directly
+        vv = escape_value(v)
+        if not vv.nil?
+          # if successful - it's an equality match against that value
+          op = '='
+        elsif v.is_a?(Array) and v.size == 2
+          # otherwise try [operator, value] array match
+          vv = escape_value(v[1])
+          unless vv.nil?
+            op = v[0]
+          else
+            raise "Unable to parse value in tuple condition #{v.inspect} for field #{k.inspect}"
+          end
+        else
+          raise "Unable to parse value #{v.inspect} for field #{k.inspect}"
+        end
+
+        where << "`#{k}` #{op} #{vv}"
+      }
+
+      " WHERE #{where.join(' AND ')}"
     end
   end
 end
