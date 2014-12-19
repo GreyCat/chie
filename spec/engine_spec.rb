@@ -110,10 +110,11 @@ describe Engine do
       id_series = series.insert({'name' => 'Series', 'series_book' => [id1, id2]})
 
       expect(series.get(id_series)).to eq({
+        '_header' => 'Series',
         'name' => 'Series',
         'series_book' => [
-          {'_id' => id1, 'name' => 'Foo'},
-          {'_id' => id2, 'name' => 'Bar'},
+          {'_id' => id1, '_header' => 'Foo'},
+          {'_id' => id2, '_header' => 'Bar'},
         ],
       })
 
@@ -194,6 +195,7 @@ describe Engine do
       expect(ent).not_to be_nil
       r = ent.get(1)
       expect(r).to eq({
+        '_header' => 'Foo',
         'name' => 'Foo',
         'int_non_ind' => 42,
         'str_ind' => 'Bar',

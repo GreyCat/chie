@@ -55,13 +55,13 @@ describe Entity do
 
   it 'should be able to retrieve inserted record' do
     rec = @book.get(1)
-    expect(rec).to eq(SIMPLE_RECORD)
+    SIMPLE_RECORD.each_pair { |k, v| expect(rec[k]).to eq(v) }
   end
 
   it 'should be able to modify record' do
     @book.update(1, SIMPLE_RECORD_2)
     rec = @book.get(1)
-    expect(rec).to eq(SIMPLE_RECORD_2)
+    SIMPLE_RECORD_2.each_pair { |k, v| expect(rec[k]).to eq(v) }
   end
 
   it 'should be able to see two distinct versions of our record' do
@@ -184,10 +184,11 @@ describe Entity do
       @article = @e.entity('article')
       a = @article.get(1)
       expect(a).to eq({
+        "_header" => "Sourced article",
         "name" => "Sourced article",
         "source"=> [{
           "_id" => 1,
-          "name" => "Source",
+          "_header" => "Source",
         }],
       })
     end
@@ -220,10 +221,11 @@ describe Entity do
       @article = @e.entity('article')
       a = @article.get(1)
       expect(a).to eq({
+        "_header" => "Sourced article",
         "name" => "Sourced article",
         "source"=> [{
           "_id" => 1,
-          "name" => "Source",
+          "_header" => "Source",
         }],
       })
     end
@@ -352,6 +354,12 @@ describe Entity do
         expect(@book.count).to eq(1)
       end
 
+      it 'can get proper header for one record' do
+        @book = @e.entity('book')
+        r = @book.get(1)
+        expect(r['_header']).to eq('Foo')
+      end
+
       it 'can see proper headers in listing' do
         @book = @e.entity('book')
         @book.list.each { |row|
@@ -380,6 +388,12 @@ describe Entity do
         @person.insert('first_name' => 'Bill', 'last_name' => 'Allen')
         @person.insert('first_name' => 'William', 'last_name' => 'Harris')
         expect(@person.count).to eq(3)
+      end
+
+      it 'can get proper header for one record' do
+        @person = @e.entity('person')
+        r = @person.get(1)
+        expect(r['_header']).to eq('Smith John')
       end
 
       it 'can see proper headers in listing' do
