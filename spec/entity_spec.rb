@@ -242,11 +242,7 @@ describe Entity do
         {'name' => 'name', 'type' => 'str', 'ind' => true},
       ],
       'rel' => [
-        {
-          'name' => 'author',
-          'target' => 'person',
-          'type' => '0n',
-        }
+        {'name' => 'author', 'target' => 'person', 'type' => '0n'},
       ]
     }
 
