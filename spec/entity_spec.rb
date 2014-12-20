@@ -1,20 +1,9 @@
 require 'spec_helper'
 
-require 'mysql2'
-
 SIMPLE_SCHEME = {
   'attr' => [
-    {
-      'name' => 'name',
-      'type' => 'str',
-      'len' => 100,
-      'ind' => true,
-    },
-    {
-      'name' => 'yr',
-      'type' => 'int',
-      'ind' => true,
-    },
+    {'name' => 'name', 'type' => 'str', 'len' => 100, 'ind' => true},
+    {'name' => 'yr', 'type' => 'int', 'ind' => true},
   ]
 }
 
