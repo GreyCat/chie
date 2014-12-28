@@ -54,6 +54,12 @@ module Chie
       desc_parse(desc_read)
     end
 
+    ##
+    # Refreshes in-memory Chie schema cache in this engine instance.
+    def refresh!
+      desc_parse(desc_read)      
+    end
+    
     # ========================================================================
 
     def desc_read
