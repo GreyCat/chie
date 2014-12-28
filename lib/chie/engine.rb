@@ -17,6 +17,7 @@ module Chie
   class Engine
     DESC_TABLE = '_desc'
     DESC_COLUMN = 'json'
+    DESC_VER_COLUMN = 'ver'
 
     ##
     # Initializes the new engine and starts the connection to the
@@ -57,9 +58,9 @@ module Chie
     ##
     # Refreshes in-memory Chie schema cache in this engine instance.
     def refresh!
-      desc_parse(desc_read)      
+      desc_parse(desc_read)
     end
-    
+
     # ========================================================================
 
     def desc_read
@@ -74,7 +75,7 @@ module Chie
           desc_new
         end
       else
-        @db.query("CREATE TABLE `#{DESC_TABLE}` (`#{DESC_COLUMN}` MEDIUMTEXT) DEFAULT CHARSET=utf8;")
+        @db.query("CREATE TABLE `#{DESC_TABLE}` (`#{DESC_COLUMN}` MEDIUMTEXT, `#{DESC_VER_COLUMN}` DOUBLE) DEFAULT CHARSET=utf8;")
         desc_new
       end
     end
@@ -103,7 +104,7 @@ module Chie
       }
       desc_txt = @db.escape(desc.to_json)
       @db.query("TRUNCATE TABLE `#{DESC_TABLE}`;")
-      @db.query("INSERT INTO `#{DESC_TABLE}` VALUES ('#{desc_txt}');")
+      @db.query("INSERT INTO `#{DESC_TABLE}` VALUES ('#{desc_txt}', #{Time.now.to_f});")
     end
 
     # ========================================================================
