@@ -214,4 +214,35 @@ describe Engine do
       expect(@e).not_to be_nil
     end
   end
+
+  context 'two engines connected to one DB' do
+    before(:all) do
+      sqlclear
+      @e1 = Engine.new(DATABASE_URL)
+      @e2 = Engine.new(DATABASE_URL)
+    end
+
+    it 'first engine can create new entity' do
+      @e1.entity_create(Entity.new('ent', MIXED_SCHEMA))
+    end
+
+    it 'first engine can operate this entity' do
+      ent = @e1.entity('ent')
+      expect(ent).not_to be_nil
+      ent.insert({'name' => 'foo'})
+      expect(ent.count).to eq(1)
+    end
+
+    it 'second engine does not see entity' do
+      ent = @e2.entity('ent')
+      expect(ent).to be_nil
+    end
+
+    it 'second engine sees entity after refresh' do
+      @e2.refresh!
+      ent = @e2.entity('ent')
+      expect(ent).not_to be_nil
+      expect(ent.count).to eq(1)
+    end
+  end
 end
