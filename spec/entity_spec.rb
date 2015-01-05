@@ -71,6 +71,13 @@ describe Entity do
     expect(hist.size).to eq(2)
   end
 
+  it 'can update record with result of get() with no new history entry' do
+    rec = @book.get(1)
+    @book.update(1, rec)
+    hist = @book.history_list(1)
+    expect(hist.size).to eq(2)
+  end
+
   USER_ID = 1234
 
   it 'should add another record with given user and time' do
@@ -270,6 +277,26 @@ describe Entity do
       @book = @e.entity('book')
       @book.insert('name' => 'Anonymous book')
       expect(@book.count).to eq(1)
+    end
+
+    it 'can update book without author with different forms of same record and it will result in no history changes' do
+      @book = @e.entity('book')
+
+      @book.update(1, 'name' => 'Anonymous book')
+      expect(@book.history_list(1).size).to eq(1)
+
+      @book.update(1, 'name' => 'Anonymous book', 'author' => nil)
+      expect(@book.history_list(1).size).to eq(1)
+
+      @book.update(1, 'name' => 'Anonymous book', 'author' => [])
+      expect(@book.history_list(1).size).to eq(1)
+    end
+
+    it 'complains when trying to update book with really weird arguments' do
+      @book = @e.entity('book')
+      expect { @book.update(1, 'name' => 'Anonymous book', 'author' => 'foo') }.to raise_error(ArgumentError)
+      expect { @book.update(1, 'name' => 'Anonymous book', 'author' => {'_id' => 'foo'}) }.to raise_error(ArgumentError)
+      expect { @book.update(1, 'name' => 'Anonymous book', 'author' => {'foo' => 'bar'}) }.to raise_error(ArgumentError)
     end
 
     it 'should be able to insert book with author #1' do

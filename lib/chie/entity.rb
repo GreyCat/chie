@@ -212,6 +212,7 @@ module Chie
     # @raise [Chie::ValidationError] if given record has missing or empty mandatory fields
     # @return [Fixnum] ID of inserted record
     def insert(data, user = nil, time = nil)
+      canonicalize_data(data)
       check_mandatories(data)
       cols = generate_sql_columns(data)
 
@@ -225,6 +226,7 @@ module Chie
     def update(id, data, user = nil, time = nil)
       validate_id(id)
 
+      canonicalize_data(data)
       check_mandatories(data)
       cols = generate_sql_columns(data)
       cols['_id'] = id
@@ -507,6 +509,66 @@ module Chie
       }
 
       "WHERE #{where.join(' AND ')}"
+    end
+
+    ##
+    # Converts data hash from "presentation" form (with lots of
+    # resolved links and extra information) to "canonical" form (terse
+    # and basic).
+    def canonicalize_data(data)
+      # "_header" is a synthetic field, usually derived from other fields
+      data.delete('_header')
+
+      each_rel { |r|
+        vv = data[r.name]
+        if r.multi?
+          unless vv.nil?
+            raise ArgumentError.new("Relation #{r.name} is multi, expected enumerable for value, got #{vv.inspect}") unless vv.respond_to?(:map!)
+            vv.map! { |v| parse_presentation_id(v, r) }
+          end
+          # Empty array is non-canonical; if we've got empty array,
+          # then delete whole key for good
+          data.delete(r.name) if vv.nil? or vv.empty?
+        else
+          # Canonical form is a single integer ID
+          # Presentation form could be an array of single value
+          if vv.is_a?(Array)
+            case vv.size
+            when 0
+              # No value; just delete whole key
+              data.delete(r.name)
+            when 1
+              # Remove array wrapping
+              v = vv.first
+              v = parse_presentation_id(v, r)
+              data[r.name] = v
+            else
+              raise ArgumentError.new("Relation #{r.name} is single, but got #{vv.size} values")
+            end
+          else
+            # Normal, single value
+            if vv.nil?
+              data.delete(r.name)
+            else
+              data[r.name] = parse_presentation_id(vv, r)
+            end
+          end
+        end
+      }
+    end
+
+    ##
+    # Canonical form of relation ID is integer IDs; presentation form
+    # could be a hashes that contain at least '_id' and '_header' keys.
+    def parse_presentation_id(v, r)
+      if v.is_a?(Hash)
+        id = v['_id']
+        raise ArgumentError.new("Unable to parse value for relation #{r.name}: #{v.inspect}") if id.nil?
+      else
+        id = v
+      end
+      raise ArgumentError.new("Invalid type in value for relation #{r.name}: expected integer, got #{id.inspect}") unless id.is_a?(Integer)
+      id
     end
   end
 end
