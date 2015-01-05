@@ -52,26 +52,45 @@ module Chie
       end
 
       @db = Mysql2::Client.new(cred)
+      @desc_ver = nil
       desc_parse(desc_read)
     end
 
     ##
-    # Refreshes in-memory Chie schema cache in this engine instance.
+    # Refreshes in-memory Chie schema cache in this engine
+    # instance. Interactive multi-user applications (i.e. web
+    # applications) that allow schema changes by users should call
+    # this frequently (ideally, once per incoming request, before
+    # doing anything with the database in this request) to make sure
+    # that all application instances use most up-to-date schema.  This
+    # method is optimized - i.e. checks whether JSON schema has
+    # changed and won't re-read JSON schema if it didn't.
     def refresh!
-      desc_parse(desc_read)
+      desc_parse(desc_read) if desc_need_update
     end
 
     # ========================================================================
 
+    def desc_need_update
+      new_ver = 0
+      @db.query("SELECT `#{DESC_VER_COLUMN}` FROM `#{DESC_TABLE}`;").each { |row|
+        new_ver = row[DESC_VER_COLUMN]
+      }
+
+      @desc_ver != new_ver
+    end
+
     def desc_read
       if sql_table_exists(DESC_TABLE)
         desc_txt = nil
-        @db.query("SELECT `#{DESC_COLUMN}` FROM `#{DESC_TABLE}`;").each { |row|
+        @db.query("SELECT `#{DESC_COLUMN}`, `#{DESC_VER_COLUMN}` FROM `#{DESC_TABLE}`;").each { |row|
           desc_txt = row[DESC_COLUMN]
+          @desc_ver = row[DESC_VER_COLUMN]
         }
         if desc_txt
           JSON.load(desc_txt)
         else
+          @desc_ver = 0
           desc_new
         end
       else
