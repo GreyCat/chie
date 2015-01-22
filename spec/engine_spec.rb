@@ -126,6 +126,41 @@ describe Engine do
     end
   end
 
+  context 'creation of entity linked to itself' do
+    RECURSIVE_SCHEMA = {
+      'attr' => [
+        {'name' => 'name', 'type' => 'str', 'len' => 100, 'mand' => true, 'ind' => true},
+      ],
+      'rel' => [
+        {'name' => 'linked', 'target' => 'node', 'type' => '0n'},
+      ],
+    }
+
+    before(:all) do
+      sqlclear
+      @e = Engine.new(CREDENTIALS)
+    end
+
+    it 'can create entity with self-reference relationship' do
+      ent = @e.entity_create(Entity.new('node', RECURSIVE_SCHEMA))
+
+      ent2 = @e.entity('node')
+      expect(ent2).not_to be_nil
+    end
+
+    it 'can insert root node' do
+      node = @e.entity('node')
+      node.insert({'name' => 'root'})
+    end
+
+    it 'can insert linked nodes' do
+      node = @e.entity('node')
+      node.insert({'name' => 'child 1', 'linked' => [1]})
+      node.insert({'name' => 'child 2', 'linked' => [1]})
+      node.insert({'name' => 'child 1.1', 'linked' => [2]})
+    end
+  end
+
   context 'creation of mixed indexable and non-indexable columns' do
     MIXED_SCHEMA = {
       'attr' => [
