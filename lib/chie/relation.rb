@@ -2,7 +2,9 @@ module Chie
   class Relation
     attr_reader :name, :target, :type
 
-    def initialize(h)
+    def initialize(entity, h)
+      @entity = entity
+
       @name = h['name']
       raise "Invalid relation #{h.inspect}: no name" unless @name
       @type = h['type']

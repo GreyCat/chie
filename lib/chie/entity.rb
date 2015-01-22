@@ -65,7 +65,7 @@ module Chie
       @rel_by_name = {}
 
       h_rel.each { |r|
-        rel = Relation.new(r)
+        rel = Relation.new(self, r)
         raise "Weird schema: duplicate relation name #{rel.inspect}" if @rel_by_name[rel.name]
         @rel_by_name[rel.name] = rel
         @rels << rel.name
