@@ -124,6 +124,18 @@ describe Engine do
           "<row><field name='series'>1</field><field name='book'>2</field></row>",
       ])
     end
+
+    it 'can delete both entities' do
+      @e.entity_delete('book')
+      @e.entity_delete('series')
+    end
+
+    it 'leaves a clean database' do
+      r = sqldump.root.elements
+      expect(r.to_a('//table_data[@name="book"]')).to be_empty
+      expect(r.to_a('//table_data[@name="series"]')).to be_empty
+      expect(r.to_a('//table_data[@name="series_book"]')).to be_empty
+    end
   end
 
   context 'creation of entity linked to itself' do
