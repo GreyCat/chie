@@ -41,6 +41,20 @@ module Chie
       h.to_json(opt)
     end
 
+    def sql_table
+      @sql_table ||= @name
+    end
+
+    def sql_column1
+      calc_sql_names unless @sql_column1
+      @sql_column1
+    end
+
+    def sql_column2
+      calc_sql_names unless @sql_column2
+      @sql_column2
+    end
+
     # Returns fragment of SQL table creation statement that would
     # create relevant single foreign key column, if applicable
     def as_sql_type
@@ -49,6 +63,17 @@ module Chie
         "#{@name} INT NULL, INDEX(#{@name})"
       when '1'
         "#{@name} INT NOT NULL, INDEX(#{@name})"
+      end
+    end
+
+    private
+    def calc_sql_names
+      if @entity.name == @target
+        @sql_column1 = "#{@entity.name}_1"
+        @sql_column2 = "#{@entity.name}_2"
+      else
+        @sql_column1 = @entity.name
+        @sql_column2 = @target
       end
     end
   end

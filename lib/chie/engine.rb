@@ -168,12 +168,12 @@ module Chie
       ent.each_rel { |r|
         next unless r.multi?
         @db.query <<-__EOS__
-        CREATE TABLE `#{r.name}` (
-          `#{ent.name}` INT NOT NULL,
-          `#{r.target}` INT NOT NULL,
-          INDEX idx_1 (`#{ent.name}`),
-          INDEX idx_2 (`#{r.target}`),
-          PRIMARY KEY (`#{ent.name}`, `#{r.target}`)
+        CREATE TABLE `#{r.sql_table}` (
+          `#{r.sql_column1}` INT NOT NULL,
+          `#{r.sql_column2}` INT NOT NULL,
+          INDEX idx_1 (`#{r.sql_column1}`),
+          INDEX idx_2 (`#{r.sql_column2}`),
+          PRIMARY KEY (`#{r.sql_column1}`, `#{r.sql_column2}`)
         ) DEFAULT CHARSET=utf8;
         __EOS__
       }

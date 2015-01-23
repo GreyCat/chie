@@ -243,7 +243,7 @@ module Chie
 
         # Delete multi relations
         each_rel { |r|
-          @db.query("DELETE FROM `#{r.name}` WHERE `#{@name}`=#{id};") if r.multi?
+          @db.query("DELETE FROM `#{r.sql_table}` WHERE `#{r.sql_column1}`=#{id};") if r.multi?
         }
 
         real_insert(data, cols, user, time)
@@ -322,7 +322,7 @@ module Chie
         if r.multi?
           vv = data[r.name]
           vv.each { |v|
-            @db.query("INSERT INTO `#{r.name}` (`#{@name}`, `#{r.target}`) VALUES (#{id}, #{v});")
+            @db.query("INSERT INTO `#{r.sql_table}` (`#{r.sql_column1}`, `#{r.sql_column2}`) VALUES (#{id}, #{v});")
           } unless vv.nil?
         end
       }
