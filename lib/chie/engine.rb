@@ -193,6 +193,11 @@ module Chie
       @db.query("DROP TABLE `#{name}`;")
       @db.query("DROP TABLE `#{name}_h`;")
 
+      # Remove extra tables for multi-relations
+      ent.each_rel { |r|
+        @db.query("DROP TABLE `#{r.sql_table}`;") if r.multi?
+      }
+
       @entities.delete(name)
       desc_save
     end
