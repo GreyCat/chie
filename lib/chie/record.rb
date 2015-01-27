@@ -40,7 +40,7 @@ module Chie
     end
 
     def inspect
-      data.inspect
+      {result: @result, json: data}.inspect
     end
   end
 end
