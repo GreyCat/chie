@@ -216,6 +216,18 @@ describe Entity do
       expect(@article.list(where: {'source' => 1}).count).to eq(2)
       expect(@article.list(where: {'source' => 2}).count).to eq(1)
     end
+
+    it 'can resolve source names when listing articles' do
+      @article = @e.entity('article')
+      @article.list(
+        fields: ['source._id AS source_id', 'source.name AS source_name'],
+        where: {'source' => 1},
+        resolve: true
+      ).each { |row|
+        expect(row['source_id']).to eq(1)
+        expect(row['source_name']).to eq('Source')
+      }
+    end
   end
 
   context 'book->source relation, reloaded' do

@@ -150,13 +150,16 @@ module Chie
     #   value is 10.
     # * :page - output only records on specified page of pages, each
     #   containing `per_page` records; first page is #1.
+    # * :resolve - if true, resolve (join) all related entities,
+    #   allowing access to their fields
     def list(opt = {})
       fields = opt[:fields] || ['*']
       fields << sql_header_field
+      tables = list_tables(opt[:resolve])
       where_phrase = list_where_phrase(opt[:where])
-      order_by = header.map { |x| "`#{x.name}`" }.join(', ')
+      order_by = header.map { |x| "`#{@name}`.`#{x.name}`" }.join(', ')
 
-      q = "SELECT #{fields.join(',')} FROM `#{@name}` #{where_phrase} ORDER BY #{order_by}"
+      q = "SELECT #{fields.join(',')} FROM #{tables} #{where_phrase} ORDER BY #{order_by}"
 
       opt2 = {}
 
@@ -164,7 +167,7 @@ module Chie
         per_page = opt[:per_page].to_i || 10
         opt2[:per_page] = per_page
 
-        @db.query("SELECT COUNT(*) AS cnt FROM `#{@name}` #{where_phrase}").each { |row|
+        @db.query("SELECT COUNT(*) AS cnt FROM #{tables} #{where_phrase}").each { |row|
           opt2[:total_count] = row['cnt']
         }
 
@@ -451,9 +454,9 @@ module Chie
     protected
     def sql_header_field
       if header.size == 1
-        header_exp = "`#{header.first.name}`"
+        header_exp = "`#{@name}`.`#{header.first.name}`"
       else
-        header_fields = header.map { |a| "`#{a.name}`" }.join(",' ',")
+        header_fields = header.map { |a| "`#{@name}`.`#{a.name}`" }.join(",' ',")
         header_exp = "CONCAT(#{header_fields})"
       end
       "#{header_exp} AS _header"
@@ -509,6 +512,23 @@ module Chie
       }
 
       "WHERE #{where.join(' AND ')}"
+    end
+
+    ##
+    # Returns SQL tables expression.
+    #
+    # @param resolve Joins in all related entities, if true.
+    def list_tables(resolve)
+      return "`#{@name}`" unless resolve
+
+      t = "`#{@name}`"
+
+      each_rel { |r|
+        raise "Unable to resolve in list (yet?) if multi-relations are present" if r.multi?
+        t << " LEFT JOIN `#{r.target}` ON `#{@name}`.`#{r.name}`=`#{r.target}`._id"
+      }
+
+      t
     end
 
     ##
