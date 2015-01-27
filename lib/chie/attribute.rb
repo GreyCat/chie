@@ -97,5 +97,30 @@ module Chie
         raise "Invalid type #{@type.inspect} encountered on attribute #{@name.inspect}"
       end
     end
+
+    ##
+    # Converts attribute value from internal stored format into
+    # something more human-readable. Namely, "enum" values are
+    # converted into relevant title strings and "set" values are
+    # converted into arrays of title strings. Everything else is
+    # passed "as is", as it should be already readable.
+    def value_resolve(v)
+      return nil if v.nil?
+
+      case @type
+      when 'str', 'text', 'int', 'float', 'password'
+        v
+      when 'enum'
+        @values[v]
+      when 'set'
+        res = []
+        @values.each_with_index { |name, i|
+          res << name if (v & (1 << i)) != 0
+        }
+        res
+      else
+        raise "Invalid type #{@type.inspect} encountered on attribute #{@name.inspect}"
+      end
+    end
   end
 end
