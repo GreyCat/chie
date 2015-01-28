@@ -108,7 +108,7 @@ module Chie
       return nil if v.nil?
 
       case @type
-      when 'str', 'text', 'int', 'float', 'password'
+      when 'str', 'text', 'int', 'float', 'password', 'bool'
         v
       when 'enum'
         @values[v]
