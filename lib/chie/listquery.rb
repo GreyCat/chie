@@ -2,19 +2,22 @@ require 'chie/recordset'
 
 module Chie
   class ListQuery
+    attr_reader :fields, :tables, :where_phrase, :order_by
+
     def initialize(db, entity, opt)
       @db = db
       @entity = entity
       @opt = opt
 
       @engine = @entity.engine
+
+      generate_fields
+      generate_tables
+      generate_where_phrase
+      generate_order_by
     end
 
     def query
-      tables = list_tables(@opt[:resolve])
-      where_phrase = list_where_phrase(@opt[:where])
-      order_by = @entity.header.map { |x| "`#{@entity.name}`.`#{x.name}`" }.join(', ')
-
       q = "SELECT #{fields.join(',')} FROM #{tables} #{where_phrase} ORDER BY #{order_by}"
 
       @opt2 = {}
@@ -41,8 +44,6 @@ module Chie
     end
 
     def count
-      where_phrase = list_where_phrase(@opt[:where])
-
       cnt = nil
       @db.query("SELECT COUNT(*) AS cnt FROM `#{@entity.name}` #{where_phrase};").each { |row|
         cnt = row['cnt']
@@ -52,7 +53,9 @@ module Chie
       cnt
     end
 
-    def fields
+    private
+
+    def generate_fields
       @fields = @opt[:fields] || ['*']
       @fields << @entity.sql_header_field
     end
@@ -70,8 +73,9 @@ module Chie
     #   connected with AND operators.
     # @return [String] WHERE phrase to fulfill given search condition
     #   request
-    private
-    def list_where_phrase(opt_where)
+    def generate_where_phrase
+      opt_where = @opt[:where]
+
       return '' if opt_where.nil? or opt_where.empty?
 
       where = []
@@ -106,24 +110,24 @@ module Chie
         where << "`#{k}` #{op} #{vv}"
       }
 
-      "WHERE #{where.join(' AND ')}"
+      @where_phrase = "WHERE #{where.join(' AND ')}"
     end
 
     ##
-    # Returns SQL tables expression.
-    #
-    # @param resolve Joins in all related entities, if true.
-    def list_tables(resolve)
-      return "`#{@entity.name}`" unless resolve
-
-      t = "`#{@entity.name}`"
+    # Returns SQL tables expression. If @opt[:resolve] is true, joins
+    # in all related entities.
+    def generate_tables
+      @tables = "`#{@entity.name}`"
+      return unless @opt[:resolve]
 
       @entity.each_rel { |r|
         raise "Unable to resolve in list (yet?) if multi-relations are present" if r.multi?
-        t << " LEFT JOIN `#{r.target}` ON `#{@name}`.`#{r.name}`=`#{r.target}`._id"
+        @tables << " LEFT JOIN `#{r.target}` ON `#{@name}`.`#{r.name}`=`#{r.target}`._id"
       }
+    end
 
-      t
+    def generate_order_by
+      @order_by = @entity.header.map { |x| "`#{@entity.name}`.`#{x.name}`" }.join(', ')
     end
   end
 end
