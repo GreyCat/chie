@@ -215,5 +215,19 @@ module Chie
       }
       return r
     end
+
+    ##
+    # Converts a given value to a string, safe to be used in SQL statement.
+    # @return [String, nil] escaped and quoted string, safe to be used
+    #   in SQL statement, or nil if the conversion wasn't possible
+    def escape_value(v)
+      if v.is_a?(String)
+        "'#{@db.escape(v)}'"
+      elsif v.is_a?(Numeric)
+        v.to_s
+      else
+        nil
+      end
+    end
   end
 end
