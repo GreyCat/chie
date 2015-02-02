@@ -84,33 +84,47 @@ module Chie
         r = @entity.rel(k)
         if a
           raise "Field #{k.inspect} is not indexed" unless a.indexed?
+          where << where_entry_single_column(k, v)
         elsif r
-          raise "Unable to match against multi-relation #{k.inspect}" if r.multi?
+          if r.multi?
+            @tables << " LEFT JOIN `#{r.sql_table}` ON `#{@entity.name}`.`_id`=`#{r.sql_table}`.`#{r.sql_column1}`"
+            where << where_entry_join_id(r, v)
+          else
+            where << where_entry_single_column(k, v)
+          end
         else
           raise "Invalid field name: #{k.inspect}" unless a
         end
-
-        # Try to convert value directly
-        vv = @engine.escape_value(v)
-        if not vv.nil?
-          # if successful - it's an equality match against that value
-          op = '='
-        elsif v.is_a?(Array) and v.size == 2
-          # otherwise try [operator, value] array match
-          vv = @engine.escape_value(v[1])
-          unless vv.nil?
-            op = v[0]
-          else
-            raise "Unable to parse value in tuple condition #{v.inspect} for field #{k.inspect}"
-          end
-        else
-          raise "Unable to parse value #{v.inspect} for field #{k.inspect}"
-        end
-
-        where << "`#{k}` #{op} #{vv}"
       }
 
       @where_phrase = "WHERE #{where.join(' AND ')}"
+    end
+
+    def where_entry_single_column(k, v)
+      # Try to convert value directly
+      vv = @engine.escape_value(v)
+      if not vv.nil?
+        # if successful - it's an equality match against that value
+        op = '='
+      elsif v.is_a?(Array) and v.size == 2
+        # otherwise try [operator, value] array match
+        vv = @engine.escape_value(v[1])
+        unless vv.nil?
+          op = v[0]
+        else
+          raise "Unable to parse value in tuple condition #{v.inspect} for field #{k.inspect}"
+        end
+      else
+        raise "Unable to parse value #{v.inspect} for field #{k.inspect}"
+      end
+
+      "`#{k}` #{op} #{vv}"
+    end
+
+    def where_entry_join_id(r, v)
+      vv = @engine.escape_value(v)
+      raise "Unable to parse value for multi-relation join ID" unless vv
+      "`#{r.sql_table}`.`#{r.sql_column2}` = #{vv}"
     end
 
     ##

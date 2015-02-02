@@ -332,7 +332,16 @@ describe Entity do
     it 'should return properly all books by person #1' do
       @book = @e.entity('book')
       book_ids = []
-      @book.list(:where => {'author' => 1}).each { |rec|
+
+      # Options for the list query
+      opt = {:where => {'author' => 1}}
+
+      # Check the query first
+      lq = ListQuery.new(@db, @book, opt)
+      expect(lq.query).to eq("SELECT *,`book`.`name` AS _header FROM `book` LEFT JOIN `author` ON `book`.`_id`=`author`.`book` WHERE `author`.`person` = 1 ORDER BY `book`.`name`")
+
+      # Check that it works
+      @book.list(opt).each { |rec|
         book_ids << rec['_id']
       }
       book_ids.sort!
