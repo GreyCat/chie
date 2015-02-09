@@ -31,7 +31,7 @@ module Chie
         }
 
         @opt2[:page] = @opt[:page].to_i
-        @opt2[:page] = 1 if opt2[:page] < 1
+        @opt2[:page] = 1 if @opt2[:page] < 1
         q << " LIMIT #{(@opt2[:page] - 1) * per_page}, #{per_page}"
       end
 
