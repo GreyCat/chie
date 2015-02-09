@@ -125,6 +125,15 @@ describe Entity do
     expect(@book.count(where: {'name' => ['LIKE', '%i%']})).to eq(2)
   end
 
+  it 'can limit list with page arguments' do
+    expect(@book.list.count).to eq(2)
+    expect(@book.list(page: 1, per_page: 1).count).to eq(1)
+    expect(@book.list(page: 2, per_page: 1).count).to eq(1)
+    expect(@book.list(page: 3, per_page: 1).count).to eq(0)
+    expect(@book.list(page: 1, per_page: 2).count).to eq(2)
+    expect(@book.list(page: 1, per_page: 10).count).to eq(2)
+  end
+
   context 'book->source relation' do
     SOURCE_SCHEME = {
       'attr' => [
