@@ -32,7 +32,7 @@ module Chie
     end
 
     def data
-      @data ||= JSON.load(@result['_data'])
+      @data ||= JSON.load(@result['_data_0'] || @result['_data'])
     end
 
     def to_s

@@ -58,6 +58,9 @@ module Chie
     def generate_fields
       @fields = @opt[:fields] || ['*']
       @fields << @entity.sql_header_field
+
+      # Make sure that main entity's JSON data column is always available
+      @fields << "`#{@entity.name}`._data AS _data_0"
     end
 
     ##
