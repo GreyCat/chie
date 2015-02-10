@@ -28,4 +28,16 @@ describe ListQuery do
     q = ListQuery.new(@db, @entity, {})
     expect(q.run.count).to eq(5)
   end
+
+  it 'can list by exact name' do
+    q = ListQuery.new(@db, @entity, where: {'name' => 'Alpha'})
+    expect(q.run.count).to eq(1)
+    q = ListQuery.new(@db, @entity, where: {'name' => 'weird name'})
+    expect(q.run.count).to eq(0)
+  end
+
+  it 'can list by exact integer' do
+    q = ListQuery.new(@db, @entity, where: {'yr' => 1980})
+    expect(q.run.count).to eq(1)
+  end
 end
