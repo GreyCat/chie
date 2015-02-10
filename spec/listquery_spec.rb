@@ -40,4 +40,17 @@ describe ListQuery do
     q = ListQuery.new(@db, @entity, where: {'yr' => 1980})
     expect(q.run.count).to eq(1)
   end
+
+  it 'can do operator match against integers' do
+    q = ListQuery.new(@db, @entity, where: {'yr' => ['<', 1980]})
+    expect(q.run.count).to eq(1)
+    q = ListQuery.new(@db, @entity, where: {'yr' => ['<=', 1980]})
+    expect(q.run.count).to eq(2)
+    q = ListQuery.new(@db, @entity, where: {'yr' => ['<>', 1980]})
+    expect(q.run.count).to eq(4)
+    q = ListQuery.new(@db, @entity, where: {'yr' => ['>=', 1980]})
+    expect(q.run.count).to eq(4)
+    q = ListQuery.new(@db, @entity, where: {'yr' => ['>', 1980]})
+    expect(q.run.count).to eq(3)
+  end
 end
