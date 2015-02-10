@@ -87,20 +87,22 @@ module Chie
         r = @entity.rel(k)
         if a
           raise "Field #{k.inspect} is not indexed" unless a.indexed?
-          where << where_entry_single_column(k, v)
+          wh = where_entry_single_column(k, v)
         elsif r
           if r.multi?
             @tables << " LEFT JOIN `#{r.sql_table}` ON `#{@entity.name}`.`_id`=`#{r.sql_table}`.`#{r.sql_column1}`"
-            where << where_entry_join_id(r, v)
+            wh = where_entry_join_id(r, v)
           else
-            where << where_entry_single_column(k, v)
+            wh = where_entry_single_column(k, v)
           end
         else
           raise "Invalid field name: #{k.inspect}" unless a
         end
+
+        where << wh if wh
       }
 
-      @where_phrase = "WHERE #{where.join(' AND ')}"
+      @where_phrase = where.empty? ? '' : "WHERE #{where.join(' AND ')}"
     end
 
     def where_entry_single_column(k, v)
@@ -109,6 +111,26 @@ module Chie
       if not vv.nil?
         # if successful - it's an equality match against that value
         op = '='
+      elsif v.is_a?(Range)
+        # it's range match
+        b1 = v.begin
+        b2 = v.end
+        if b1 == -Float::INFINITY and b2 == Float::INFINITY
+          # (-inf..+inf) => no point doing any comparisons
+          return nil
+        elsif b1 == -Float::INFINITY
+          # (-inf..b2]
+          op = '<='
+          vv = @engine.escape_value(b2)
+        elsif b2 == Float::INFINITY
+          # [b1..+inf)
+          op = '>='
+          vv = @engine.escape_value(b1)
+        else
+          # [b1..b2]
+          op = 'BETWEEN'
+          vv = "#{@engine.escape_value(b1)} AND #{@engine.escape_value(b2)}"
+        end
       elsif v.is_a?(Array) and v.size == 2
         # otherwise try [operator, value] array match
         vv = @engine.escape_value(v[1])
