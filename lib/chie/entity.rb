@@ -240,6 +240,11 @@ module Chie
 
       h['title'] = @title if @title
 
+      # Store "header" if it's non-default
+      unless @header.size == 1 && @header.first == @attr_by_name['name']
+        h['header'] = @header.map { |x| x.name }
+      end
+
       h.to_json(opt)
     end
 
