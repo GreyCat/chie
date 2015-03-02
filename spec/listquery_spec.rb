@@ -70,4 +70,10 @@ describe ListQuery do
     q = ListQuery.new(@db, @entity, where: {'yr' => (-Float::INFINITY..Float::INFINITY)})
     expect(q.run.count).to eq(5)
   end
+
+  it 'can do IN matches against multiple values' do
+    q = ListQuery.new(@db, @entity, where: {'yr' => ['IN', [1980, 1982, 1983]]})
+    expect(q.where_phrase).to eq('WHERE `yr` IN (1980,1982,1983)')
+    expect(q.run.count).to eq(2)
+  end
 end

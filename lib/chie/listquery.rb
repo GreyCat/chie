@@ -133,11 +133,18 @@ module Chie
         end
       elsif v.is_a?(Array) and v.size == 2
         # otherwise try [operator, value] array match
-        vv = @engine.escape_value(v[1])
-        unless vv.nil?
-          op = v[0]
+        if v[0] == 'IN'
+          raise "IN value #{v[1].inspect} is expected to be an array" unless v[1].is_a?(Array)
+          vv_arr = v[1].map { |x| @engine.escape_value(x) }
+          op = 'IN'
+          vv = "(#{vv_arr.join(',')})"
         else
-          raise "Unable to parse value in tuple condition #{v.inspect} for field #{k.inspect}"
+          vv = @engine.escape_value(v[1])
+          unless vv.nil?
+            op = v[0]
+          else
+            raise "Unable to parse value in tuple condition #{v.inspect} for field #{k.inspect}"
+          end
         end
       else
         raise "Unable to parse value #{v.inspect} for field #{k.inspect}"
