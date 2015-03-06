@@ -104,6 +104,9 @@ module Chie
           else
             wh = where_entry_single_column(k, v)
           end
+        elsif k == '_id'
+          # ID column is not an attribute, so it requires special case
+          wh = where_entry_single_column(k, v)
         else
           raise "Invalid field name: #{k.inspect}" unless a
         end
