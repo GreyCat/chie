@@ -57,6 +57,12 @@ module Chie
     end
 
     ##
+    # Workaround method to access SQL connection directly.
+    def query_sql(q)
+      @db.query(q)
+    end
+
+    ##
     # Refreshes in-memory Chie schema cache in this engine
     # instance. Interactive multi-user applications (i.e. web
     # applications) that allow schema changes by users should call
