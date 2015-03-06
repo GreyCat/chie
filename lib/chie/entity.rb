@@ -108,10 +108,28 @@ module Chie
     # given condition.
     #
     # @see Entity#list
-    # @see Entity#list_where_phrase
+    # @see ListQuery
     def count(opt = {})
       q = ListQuery.new(@db, self, opt)
       q.count
+    end
+
+    ##
+    # Counts number of records in collection, grouped by a certain
+    # attribute or single-type relation. An optional hash can be
+    # passed to count only records that match given condition.
+    #
+    # @param [String] group_by_name the name of a field (attribute or
+    # relation) perform a group by on
+    # @return [Hash] key-value pairs, where keys are all possible
+    # values of group-by attribute or relation, and values are integer
+    # quantities of records existing for this group-by key
+    #
+    # @see Entity#list
+    # @see ListQuery
+    def group_count(group_by_name, opt = {})
+      q = ListQuery.new(@db, self, opt)
+      q.group_count(group_by_name)
     end
 
     def get(id)
