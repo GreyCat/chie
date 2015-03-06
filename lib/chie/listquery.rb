@@ -4,7 +4,7 @@ module Chie
   class ListQuery
     attr_reader :fields, :tables, :where_phrase, :order_by
 
-    def initialize(db, entity, opt)
+    def initialize(db, entity, opt = {})
       @db = db
       @entity = entity
       @opt = opt
@@ -51,6 +51,15 @@ module Chie
       raise "Invalid query result returned from counting rows in #{@entity.name.inspect}" if cnt.nil?
 
       cnt
+    end
+
+    def group_count(group_by_name)
+      r = {}
+      @db.query("SELECT #{group_by_name} AS k, COUNT(*) AS cnt FROM `#{@entity.name}` #{where_phrase} GROUP BY #{group_by_name};").each { |row|
+        r[row['k']] = row['cnt']
+      }
+
+      r
     end
 
     private

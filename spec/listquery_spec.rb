@@ -76,4 +76,16 @@ describe ListQuery do
     expect(q.where_phrase).to eq('WHERE `yr` IN (1980,1982,1983)')
     expect(q.run.count).to eq(2)
   end
+
+  it 'can do group counts for a given attribute' do
+    q = ListQuery.new(@db, @entity)
+    g = q.group_count('yr')
+    expect(g).to eq({
+      1912 => 1,
+      1980 => 1,
+      1983 => 1,
+      1989 => 1,
+      2005 => 1,
+    })
+  end
 end
