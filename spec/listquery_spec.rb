@@ -21,7 +21,7 @@ describe ListQuery do
     @entity.insert({'name' => 'Beta', 'yr' => 2005})
     @entity.insert({'name' => 'Charlie', 'yr' => 1980})
     @entity.insert({'name' => 'Delta', 'yr' => 1983})
-    @entity.insert({'name' => 'Echo', 'yr' => 1989})    
+    @entity.insert({'name' => 'Echo', 'yr' => 1989})
   end
 
   it 'can run request without arguments' do
