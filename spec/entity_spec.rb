@@ -347,7 +347,7 @@ describe Entity do
 
       # Check the query first
       lq = ListQuery.new(@db, @book, opt)
-      expect(lq.query).to eq("SELECT *,`book`.`name` AS _header FROM `book` LEFT JOIN `author` ON `book`.`_id`=`author`.`book` WHERE `author`.`person` = 1 ORDER BY `book`.`name`")
+      expect(lq.query).to eq("SELECT *,`book`.`name` AS _header,`book`._data AS _data_0 FROM `book` LEFT JOIN `author` ON `book`.`_id`=`author`.`book` WHERE `author`.`person` = 1 ORDER BY `book`.`name`")
 
       # Check that it works
       @book.list(opt).each { |rec|
