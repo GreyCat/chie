@@ -183,6 +183,12 @@ describe Entity do
       expect(rels).to eq([@e.entity('article').rel('source')])
     end
 
+    it 'can list all backward relationships' do
+      rels = []
+      @e.entity('source').each_rel_back { |r| rels << r }
+      expect(rels).to eq([@e.entity('article').rel('source')])
+    end
+
     it 'should be able to insert record in source entity' do
       @source = @e.entity('source')
       @source.insert('name' => 'Source')

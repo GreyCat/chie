@@ -100,6 +100,14 @@ module Chie
       }
     end
 
+    def each_rel_back(&block)
+      @engine.each_entity { |e|
+        e.each_rel { |r|
+          yield r if r.target == @name
+        }
+      }
+    end
+
     # ========================================================================
 
     ##
