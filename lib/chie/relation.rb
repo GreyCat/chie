@@ -1,6 +1,6 @@
 module Chie
   class Relation
-    attr_reader :name, :target, :type
+    attr_reader :entity, :name, :target, :type
 
     def initialize(entity, h)
       @entity = entity
