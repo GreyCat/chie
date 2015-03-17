@@ -177,6 +177,12 @@ describe Entity do
       expect(@e.entity('article')).to eq(@article)
     end
 
+    it 'can list all forward relationships' do
+      rels = []
+      @e.entity('article').each_rel { |r| rels << r }
+      expect(rels).to eq([@e.entity('article').rel('source')])
+    end
+
     it 'should be able to insert record in source entity' do
       @source = @e.entity('source')
       @source.insert('name' => 'Source')
