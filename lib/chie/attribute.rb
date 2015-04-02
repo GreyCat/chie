@@ -62,6 +62,8 @@ module Chie
         'DOUBLE'
       when 'text'
         'LONGTEXT'
+      when 'bool'
+        'TINYINT'
       else
         raise "Invalid type #{@type.inspect} encountered on attribute #{@name.inspect}"
       end
