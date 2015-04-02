@@ -77,6 +77,8 @@ module Chie
         "'#{db.escape(v)}'"
       when 'int', 'set', 'enum', 'float'
         v
+      when 'bool'
+        v ? 1 : 0
       else
         raise "Invalid type #{@type.inspect} encountered on attribute #{@name.inspect}"
       end
