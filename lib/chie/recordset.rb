@@ -26,5 +26,9 @@ module Chie
     def count
       @result.count
     end
+
+    def total_count
+      @opt[:total_count]
+    end
   end
 end
