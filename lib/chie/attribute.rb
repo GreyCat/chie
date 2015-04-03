@@ -75,10 +75,8 @@ module Chie
       case @type
       when 'str', 'text', 'password'
         "'#{db.escape(v)}'"
-      when 'int', 'set', 'enum', 'float'
+      when 'int', 'set', 'enum', 'float', 'bool'
         v
-      when 'bool'
-        v ? 1 : 0
       else
         raise "Invalid type #{@type.inspect} encountered on attribute #{@name.inspect}"
       end
