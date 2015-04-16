@@ -137,9 +137,18 @@ module Chie
     ##
     # Gets entity by name in this engine.
     # @param [String] name name of the entity
-    # @return [Entity]
+    # @return [Entity, nil] entity if it exists, nil otherwise
     def entity(name)
       @entities[name]
+    end
+
+    ##
+    # Gets entity by name in this engine. Fails with an exception if
+    # requested entity does not exist.
+    # @param [String] name name of the entity
+    # @return [Entity] entity
+    def entity!(name)
+      entity(name) or raise NotFound.new("Entity #{name.inspect} not found")
     end
 
     ##
