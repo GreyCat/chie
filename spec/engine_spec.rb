@@ -38,6 +38,11 @@ describe Engine do
     it 'should be able to see newly created entity' do
       expect(@e.entity('book')).not_to be_nil
       expect(JSON.load(@e.entity('book').to_json)).to eq(SIMPLE_SCHEMA)
+      expect(@e.entity!('book')).not_to be_nil
+    end
+
+    it 'fails when requested non-existent entity' do
+      expect { @e.entity!('does_not_exist') }.to raise_error(NotFound)
     end
   end
 
