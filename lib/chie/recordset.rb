@@ -11,6 +11,14 @@ module Chie
       @result.each { |x| yield(Record.new(x)) }
     end
 
+    def map(&block)
+      @result.map { |x| yield(Record.new(x)) }
+    end
+
+    def to_a
+      @result.map { |x| Record.new(x) }
+    end
+
     def current_page
       @opt[:page]
     end
