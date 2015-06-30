@@ -43,6 +43,24 @@ TODO
 
 TODO
 
+## Testing
+
+Chie is extensively covered by RSpec-based tests. Just run `rspec` to
+run it. There's only one requirement: Chie must be able to connect to
+local MySQL database `chie_test` using user `chie_test` and password
+`chie_test`.
+
+This can be accomplished by issuing the following commands in MySQL
+console (obviously authorized as a user that is able to create
+databases and grant privileges to others):
+
+```
+CREATE DATABASE chie_test;
+USE chie_test;
+GRANT ALL PRIVILEGES ON chie_test.* TO 'chie_test'@'localhost' IDENTIFIED BY 'chie_test';
+FLUSH PRIVILEGES;
+```
+
 ## License
 
 MIT

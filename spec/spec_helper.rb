@@ -12,12 +12,12 @@ RSpec.configure { |config|
 
 CREDENTIALS = {
   :host => 'localhost',
-  :username => 'rdd_test',
-  :password => 'rdd_test',
-  :database => 'rdd_test',
+  :username => 'chie_test',
+  :password => 'chie_test',
+  :database => 'chie_test',
 }
 
-DATABASE_URL = 'mysql2://rdd_test:rdd_test@localhost/rdd_test'
+DATABASE_URL = "mysql2://#{CREDENTIALS[:user]}:#{CREDENTIALS[:password]}@#{CREDENTIALS[:host]}/#{CREDENTIALS[:database]}"
 
 def sqlexec(cmd)
   `mysql --user='#{CREDENTIALS[:username]}' --password='#{CREDENTIALS[:password]}' '#{CREDENTIALS[:database]}' -e '#{cmd}'`
