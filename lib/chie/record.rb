@@ -42,5 +42,13 @@ module Chie
     def inspect
       {result: @result, json: data}.inspect
     end
+
+    def hash
+      @result.hash
+    end
+
+    def ==(other)
+      hash == other.hash
+    end
   end
 end
