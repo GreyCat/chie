@@ -32,4 +32,32 @@ describe RecordSet do
       expect(rs.total_pages).to eq(2)
     end
   end
+
+  describe '#to_a' do
+    it 'returns all rows as array, each row wrapped in Record' do
+      result = [
+        {'a' => 1, 'b' => 2},
+        {'a' => 3, 'b' => 4},
+      ]
+      rs = RecordSet.new(result)
+      rs_to_a = rs.to_a
+
+      expect(rs_to_a.count).to eq(2)
+      expect(rs_to_a[0]).to eq(Record.new({'a' => 1, 'b' => 2}))
+      expect(rs_to_a[1]).to eq(Record.new({'a' => 3, 'b' => 4}))
+    end
+  end
+
+  describe '#map' do
+    it 'maps rows using given block' do
+      result = [
+        {'a' => 1, '_header' => 2},
+        {'a' => 3, '_header' => 4},
+      ]
+      rs = RecordSet.new(result)
+      rs_map = rs.map { |x| x['a'].header }
+
+      expect(rs_map).to eq([2, 4])
+    end
+  end
 end
