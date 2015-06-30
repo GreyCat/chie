@@ -55,7 +55,7 @@ describe RecordSet do
         {'a' => 3, '_header' => 4},
       ]
       rs = RecordSet.new(result)
-      rs_map = rs.map { |x| x['a'].header }
+      rs_map = rs.map { |x| x.header }
 
       expect(rs_map).to eq([2, 4])
     end
