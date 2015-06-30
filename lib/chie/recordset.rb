@@ -2,7 +2,7 @@ require 'chie/record'
 
 module Chie
   class RecordSet
-    def initialize(result, opt)
+    def initialize(result, opt = {})
       @result = result
       @opt = opt
     end
