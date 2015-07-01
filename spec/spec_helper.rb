@@ -17,7 +17,7 @@ CREDENTIALS = {
   :database => 'chie_test',
 }
 
-DATABASE_URL = "mysql2://#{CREDENTIALS[:user]}:#{CREDENTIALS[:password]}@#{CREDENTIALS[:host]}/#{CREDENTIALS[:database]}"
+DATABASE_URL = "mysql2://#{CREDENTIALS[:username]}:#{CREDENTIALS[:password]}@#{CREDENTIALS[:host]}/#{CREDENTIALS[:database]}"
 
 def sqlexec(cmd)
   `mysql --user='#{CREDENTIALS[:username]}' --password='#{CREDENTIALS[:password]}' '#{CREDENTIALS[:database]}' -e '#{cmd}'`
