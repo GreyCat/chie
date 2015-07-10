@@ -164,6 +164,11 @@ module Chie
     # * :fields - fields to request; by default, requests all fields
     #   ("*")
     # * :where - where phrase
+    # * :order_by - "order by" specification; a single string or array
+    #   of strings; each string may be the name of attribute of
+    #   current entity (in this case it will get properly escaped) or
+    #   just be an arbitrary SQL expression (in this case it will be
+    #   used as is)
     # * :per_page - number of records to output on one page, used in
     #   conjuction with `:page` parameter; if not specified, default
     #   value is 10.
