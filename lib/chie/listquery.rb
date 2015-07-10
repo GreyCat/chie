@@ -185,7 +185,25 @@ module Chie
     end
 
     def generate_order_by
-      @order_by = @entity.header.map { |x| "`#{@entity.name}`.`#{x.name}`" }.join(', ')
+      if @opt[:order_by]
+        oo = @opt[:order_by]
+
+        # Process single string element as well as arrays
+        oo = [oo] unless oo.respond_to?(:join)
+
+        @order_by = oo.map { |o|
+          a = @entity.attr(o)
+          if a
+            # Attribute name - take care of proper escaping
+            "`#{@entity.name}`.`#{a.name}`"
+          else
+            # Probably just an expression - leave it as is
+            o.to_s
+          end
+        }.join(',')
+      else
+        @order_by = @entity.header.map { |x| "`#{@entity.name}`.`#{x.name}`" }.join(',')
+      end
     end
   end
 end
