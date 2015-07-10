@@ -88,4 +88,43 @@ describe ListQuery do
       2005 => 1,
     })
   end
+
+  it 'orders lists by single field name as string' do
+    q = ListQuery.new(@db, @entity, order_by: 'yr')
+    expect(q.order_by).to eq('`book`.`yr`')
+    expect(q.run.map { |row| row['yr'] }).to eq([
+      1912,
+      1980,
+      1983,
+      1989,
+      2005,
+    ])
+  end
+
+  it 'orders lists by single field name as array' do
+    q = ListQuery.new(@db, @entity, order_by: ['yr'])
+    expect(q.order_by).to eq('`book`.`yr`')
+    expect(q.run.map { |row| row['yr'] }).to eq([
+      1912,
+      1980,
+      1983,
+      1989,
+      2005,
+    ])
+  end
+
+  it 'orders list by multiple field names' do
+    q = ListQuery.new(@db, @entity, order_by: ['yr', 'name'])
+    expect(q.order_by).to eq('`book`.`yr`,`book`.`name`')
+  end
+
+  it 'orders list by arbitrary string expression' do
+    q = ListQuery.new(@db, @entity, order_by: '10000 - yr')
+    expect(q.order_by).to eq('10000 - yr')
+  end
+
+  it 'orders list by arbitrary array expression' do
+    q = ListQuery.new(@db, @entity, order_by: ['10000 - yr'])
+    expect(q.order_by).to eq('10000 - yr')
+  end
 end
