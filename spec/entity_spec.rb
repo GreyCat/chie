@@ -47,6 +47,10 @@ describe Entity do
     SIMPLE_RECORD.each_pair { |k, v| expect(rec[k]).to eq(v) }
   end
 
+  it "can't insert record with invalid fields" do
+    expect { @book.insert({'foo' => 1234}) }.to raise_error(ArgumentError)
+  end
+
   it 'should be able to modify record' do
     @book.update(1, SIMPLE_RECORD_2)
     rec = @book.get(1)
