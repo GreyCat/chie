@@ -25,7 +25,7 @@ describe Entity do
     'yr' => 4321,
   }
 
-  it 'should be able to properly convert data hash to SQL according to the schema' do
+  it 'can properly convert data hash to SQL according to the schema' do
     expect(@book.instance_eval { generate_sql_columns(SIMPLE_RECORD) }).to eq({
         '_data' => "'{\\\"name\\\":\\\"Lorem ipsum\\\",\\\"yr\\\":1234}'",
         'name' => "'Lorem ipsum'",
@@ -36,13 +36,13 @@ describe Entity do
     expect { @book.instance_eval { parse_data_with_schema({'foo' => 1234}) } }.to raise_error
   end
 
-  it 'should be able to insert simple record in a given entity anonymously' do
+  it 'can insert simple record in a given entity anonymously' do
     id = @book.insert(SIMPLE_RECORD)
     expect(id).to eq(1)
     expect(@book.count).to eq(1)
   end
 
-  it 'should be able to retrieve inserted record' do
+  it 'can retrieve inserted record' do
     rec = @book.get(1)
     SIMPLE_RECORD.each_pair { |k, v| expect(rec[k]).to eq(v) }
   end
@@ -51,18 +51,18 @@ describe Entity do
     expect { @book.insert({'foo' => 1234}) }.to raise_error(ArgumentError)
   end
 
-  it 'should be able to modify record' do
+  it 'can modify record' do
     @book.update(1, SIMPLE_RECORD_2)
     rec = @book.get(1)
     SIMPLE_RECORD_2.each_pair { |k, v| expect(rec[k]).to eq(v) }
   end
 
-  it 'should be able to see two distinct versions of our record' do
+  it 'can see two distinct versions of our record' do
     hist = @book.history_list(1)
     expect(hist.size).to eq(2)
   end
 
-  it 'should be able to get record in version #1' do
+  it 'can get record in version #1' do
     hist = @book.history_get(1)
     expect(hist['name']).to eq(SIMPLE_RECORD['name'])
     expect(hist['yr']).to eq(SIMPLE_RECORD['yr'])
@@ -97,17 +97,17 @@ describe Entity do
     }
   end
 
-  it 'should be able to list all entities with no where phrase' do
+  it 'can list all entities with no where phrase' do
     expect(@book.list.count).to eq(2)
     expect(@book.count).to eq(2)
   end
 
-  it 'should be able to list all entities with empty where phrase' do
+  it 'can list all entities with empty where phrase' do
     expect(@book.list(where: {}).count).to eq(2)
     expect(@book.count(where: {})).to eq(2)
   end
 
-  it 'should be able to list entities by name and year' do
+  it 'can list entities by name and year' do
     expect(@book.list(where: {'name' => 'foo'}).count).to eq(0)
     expect(@book.count(where: {'name' => 'foo'})).to eq(0)
     expect(@book.list(where: {'name' => SIMPLE_RECORD['name']}).count).to eq(1)
@@ -120,7 +120,7 @@ describe Entity do
     expect(@book.count(where: {'yr' => SIMPLE_RECORD_2['yr']})).to eq(1)
   end
 
-  it 'should be able to list entities by name with LIKE operator' do
+  it 'can list entities by name with LIKE operator' do
     expect(@book.list(where: {'name' => ['LIKE', 'foo']}).count).to eq(0)
     expect(@book.count(where: {'name' => ['LIKE', 'foo']})).to eq(0)
     expect(@book.list(where: {'name' => ['LIKE', 'Lor%']}).count).to eq(1)
@@ -173,7 +173,7 @@ describe Entity do
       @e = Engine.new(CREDENTIALS)
     end
 
-    it 'should be able to create two related entities' do
+    it 'can create two related entities' do
       @source = @e.entity_create(Entity.new('source', SOURCE_SCHEME))
       @article = @e.entity_create(Entity.new('article', ARTICLE_SCHEME))
 
@@ -193,7 +193,7 @@ describe Entity do
       expect(rels).to eq([@e.entity('article').rel('source')])
     end
 
-    it 'should be able to insert record in source entity' do
+    it 'can insert record in source entity' do
       @source = @e.entity('source')
       @source.insert('name' => 'Source')
       expect(@source.count).to eq(1)
@@ -205,13 +205,13 @@ describe Entity do
       expect(@article.count).to eq(0)
     end
 
-    it 'should be able to insert sourced record in article entity' do
+    it 'can insert sourced record in article entity' do
       @article = @e.entity('article')
       @article.insert('name' => 'Sourced article', 'source' => 1)
       expect(@article.count).to eq(1)
     end
 
-    it 'should be able to see inserted record with linked one' do
+    it 'can see inserted record with linked one' do
       @article = @e.entity('article')
       a = @article.get(1)
       expect(a).to eq({
@@ -224,7 +224,7 @@ describe Entity do
       })
     end
 
-    it 'should be able to insert more sources and articles' do
+    it 'can insert more sources and articles' do
       @source = @e.entity('source')
       @source.insert('name' => 'Source 2')
 
@@ -236,7 +236,7 @@ describe Entity do
       expect(@article.count).to eq(3)
     end
 
-    it 'should be able to list articles by source' do
+    it 'can list articles by source' do
       @article = @e.entity('article')
       expect(@article.list(where: {'source' => 1}).count).to eq(2)
       expect(@article.list(where: {'source' => 2}).count).to eq(1)
@@ -260,7 +260,7 @@ describe Entity do
       @e = Engine.new(CREDENTIALS)
     end
 
-    it 'should be able to see previously inserted record with linked one' do
+    it 'can see previously inserted record with linked one' do
       @article = @e.entity('article')
       a = @article.get(1)
       expect(a).to eq({
@@ -295,7 +295,7 @@ describe Entity do
       @e = Engine.new(CREDENTIALS)
     end
 
-    it 'should be able to create two related entities' do
+    it 'can create two related entities' do
       @person = @e.entity_create(Entity.new('person', PERSON_SCHEME))
       @book = @e.entity_create(Entity.new('book', BOOK_SCHEME))
 
@@ -303,14 +303,14 @@ describe Entity do
       expect(@e.entity('book')).to eq(@book)
     end
 
-    it 'should be able to insert 2 persons' do
+    it 'can insert 2 persons' do
       @person = @e.entity('person')
       @person.insert('name' => 'Person 1')
       @person.insert('name' => 'Person 2')
       expect(@person.count).to eq(2)
     end
 
-    it 'should be able to insert book without author' do
+    it 'can insert book without author' do
       @book = @e.entity('book')
       @book.insert('name' => 'Anonymous book')
       expect(@book.count).to eq(1)
@@ -336,19 +336,19 @@ describe Entity do
       expect { @book.update(1, 'name' => 'Anonymous book', 'author' => {'foo' => 'bar'}) }.to raise_error(ArgumentError)
     end
 
-    it 'should be able to insert book with author #1' do
+    it 'can insert book with author #1' do
       @book = @e.entity('book')
       @book.insert('name' => 'Book #2', 'author' => [1])
       expect(@book.count).to eq(2)
     end
 
-    it 'should be able to insert book co-authored by persons #1 and #2' do
+    it 'can insert book co-authored by persons #1 and #2' do
       @book = @e.entity('book')
       @book.insert('name' => 'Co-authored #1', 'author' => [1, 2])
       expect(@book.count).to eq(3)
     end
 
-    it 'should be able to insert another co-authored book' do
+    it 'can insert another co-authored book' do
       @book = @e.entity('book')
       @book.insert('name' => 'Co-authored #2', 'author' => [1, 2])
       expect(@book.count).to eq(4)
@@ -373,12 +373,12 @@ describe Entity do
       expect(book_ids).to eq([2, 3, 4])
     end
 
-    it 'should be able to update author of Book #2 to another single author' do
+    it 'can update author of Book #2 to another single author' do
       @book = @e.entity('book')
       @book.update(2, 'name' => 'Book #2', 'author' => [2])
     end
 
-    it 'should be able to update author of Book #2 to co-authored' do
+    it 'can update author of Book #2 to co-authored' do
       @book = @e.entity('book')
       @book.update(2, 'name' => 'Book #2', 'author' => [1, 2])
     end
