@@ -396,7 +396,7 @@ describe Entity do
       expect {
         @book = Entity.new('book', INVALID_SCHEME)
         @e.entity_create(@book)
-      }.to raise_error
+      }.to raise_error(InvalidSchema)
     end
 
     context 'one custom header field entity' do

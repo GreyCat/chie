@@ -14,6 +14,7 @@ module Chie
   end
 
   class NotFound < Exception; end
+  class InvalidSchema < Exception; end
 
   class Entity
     attr_reader :name
@@ -37,7 +38,7 @@ module Chie
 
       h_attr.each { |a|
         attr = Attribute.new(a)
-        raise "Weird schema: duplicate attribute #{attr.inspect}" if @attr_by_name[attr.name]
+        raise InvalidSchema.new("duplicate attribute #{attr.inspect}") if @attr_by_name[attr.name]
         @attr_by_name[attr.name] = attr
         @attrs << attr.name
       }
@@ -49,12 +50,12 @@ module Chie
     def parse_header(h_header)
       if h_header.nil?
         attr = @attr_by_name['name']
-        raise "Weird schema: entity must include attribute \"name\" or specify alternative header fields" unless attr
+        raise InvalidSchema.new("entity must include attribute \"name\" or specify alternative header fields") unless attr
         @header = [attr]
       else
         @header = h_header.map { |a|
           attr = @attr_by_name[a]
-          raise "Weird schema: header field includes attribute #{a.inspect}, but it doesn't exist" unless attr
+          raise InvalidSchema.new("header field includes attribute #{a.inspect}, but it doesn't exist") unless attr
           attr
         }
       end
@@ -66,7 +67,7 @@ module Chie
 
       h_rel.each { |r|
         rel = Relation.new(self, r)
-        raise "Weird schema: duplicate relation name #{rel.inspect}" if @rel_by_name[rel.name]
+        raise InvalidSchema.new("duplicate relation name #{rel.inspect}") if @rel_by_name[rel.name]
         @rel_by_name[rel.name] = rel
         @rels << rel.name
       }
