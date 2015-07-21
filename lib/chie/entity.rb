@@ -82,12 +82,38 @@ module Chie
       @title || @name
     end
 
+    ##
+    # Gets attribute by name in this entity.
+    # @param [String] name name of the attribute
+    # @return [Attribute, nil] attribute if it exists, nil otherwise
     def attr(name)
       @attr_by_name[name]
     end
 
+    ##
+    # Gets attribute by name in this entity. Fails with an exception
+    # if requested attribute does not exist.
+    # @param [String] name name of the attribute
+    # @return [Attribute] attribute
+    def attr!(name)
+      @attr_by_name[name] or raise NotFound.new("Attribute #{name.inspect} not found")
+    end
+
+    ##
+    # Gets relation by name in this entity.
+    # @param [String] name name of the relation
+    # @return [Relation, nil] relation if it exists, nil otherwise
     def rel(name)
       @rel_by_name[name]
+    end
+
+    ##
+    # Gets relation by name in this entity. Fails with an exception if
+    # requested relation does not exist.
+    # @param [String] name name of the relation
+    # @return [Relation] relation
+    def rel!(name)
+      @rel_by_name[name] or raise NotFound.new("Relation #{name.inspect} not found")
     end
 
     def each_attr(&block)
