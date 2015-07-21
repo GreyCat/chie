@@ -25,6 +25,28 @@ describe Entity do
     'yr' => 4321,
   }
 
+  describe :attr do
+    it 'gets known attribute by name' do
+      expect(@book.attr('yr')).to eq(Attribute.new({'name' => 'yr', 'type' => 'int', 'ind' => true}))
+    end
+
+    it 'returns nil when asked for unknown attribute' do
+      expect(@book.attr('foo')).to be_nil
+    end
+  end
+
+  describe :attr! do
+    it 'gets known attribute by name' do
+      expect(@book.attr!('yr')).to eq(Attribute.new({'name' => 'yr', 'type' => 'int', 'ind' => true}))
+    end
+
+    it 'raises NotFound exception when asked for unknown attribute' do
+      expect {
+        @book.attr!('foo')
+      }.to raise_error(NotFound)
+    end
+  end
+
   it 'can properly convert data hash to SQL according to the schema' do
     expect(@book.instance_eval { generate_sql_columns(SIMPLE_RECORD) }).to eq({
         '_data' => "'{\\\"name\\\":\\\"Lorem ipsum\\\",\\\"yr\\\":1234}'",
