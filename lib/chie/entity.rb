@@ -1,6 +1,7 @@
 require 'chie/attribute'
 require 'chie/relation'
 require 'chie/listquery'
+require 'chie/searchquery'
 
 module Chie
   class ValidationError < Exception
@@ -179,6 +180,24 @@ module Chie
     #   allowing access to their fields
     def list(opt = {})
       q = ListQuery.new(@db, self, opt)
+      q.run
+    end
+
+    ##
+    # Searches records of this entity, pulling along all related
+    # entries, joining the tables as necessary. Options can be used to
+    # specify what should be searched, joined in and returned:
+    #
+    # @param [Hash] opt search options
+    # @option opt [Array<String>] fields
+    # @option opt [Array<Array<String>>] where
+    # @option opt [Array<String>] order
+    # TODO
+    #
+    # @return [RecordSet] an iterable collection of records with
+    # requested fields filled
+    def search(opt = {})
+      q = SearchQuery.new(@db, self, opt)
       q.run
     end
 
