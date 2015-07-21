@@ -124,5 +124,13 @@ module Chie
         raise "Invalid type #{@type.inspect} encountered on attribute #{@name.inspect}"
       end
     end
+
+    def hash
+      to_json(nil).hash
+    end
+
+    def ==(other)
+      to_json(nil) == other.to_json(nil)
+    end
   end
 end
