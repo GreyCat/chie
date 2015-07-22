@@ -244,5 +244,13 @@ module Chie
         nil
       end
     end
+
+    ##
+    # Escapes literate name as per standards of current SQL engine.
+    # @param [String] v table or column name to escape
+    # @return [String] escaped name
+    def escape_name(v)
+      "`#{v}`"
+    end
   end
 end
