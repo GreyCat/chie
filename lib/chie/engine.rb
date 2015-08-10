@@ -75,6 +75,25 @@ module Chie
       desc_parse(desc_read) if desc_need_update
     end
 
+    ##
+    # Performs a given block inside a transaction enforced by
+    # underlying RDBMS. Successfully exiting a block will result in
+    # COMMIT being executed, thus committing everything that happened
+    # in a block to the database. Any uncaught exception that will
+    # happen will force a ROLLBACK being executed, thus rolling back
+    # all the changes that happened to the database as it were when
+    # the block was just starting.
+    def transaction(&block)
+      @db.query('START TRANSACTION;')
+      begin
+        yield
+        @db.query('COMMIT;')
+      rescue Exception => e
+        @db.query('ROLLBACK;')
+        raise e
+      end
+    end
+
     # ========================================================================
 
     def desc_need_update
