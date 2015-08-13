@@ -256,6 +256,62 @@ describe Engine do
     end
   end
 
+  context 'unique indexed column' do
+    UNIQ_SCHEMA = {
+      'attr' => [
+        {
+          'name' => 'name',
+          'type' => 'str',
+          'ind' => true,
+          'len' => 100,
+        },
+        {
+          'name' => 'uid',
+          'type' => 'str',
+          'mand' => true,
+          'ind' => true,
+          'uniq' => true,
+          'len' => 16,
+        },
+      ]
+    }
+
+    before(:all) do
+      sqlclear
+      @e = Engine.new(CREDENTIALS)
+    end
+
+    it 'can create unique indexed column' do
+      ent = @e.entity_create(Entity.new('ent', UNIQ_SCHEMA))
+
+      ent2 = @e.entity('ent')
+      expect(ent2).not_to be_nil
+
+      r = sqldump.root.elements
+      expect(r.to_a('//table_structure[@name="ent"]/field').map { |x| x.to_s }).to eq([
+          "<field Comment='' Extra='auto_increment' Field='_id' Key='PRI' Null='NO' Type='int(11)'/>",
+          "<field Comment='' Extra='' Field='_data' Key='' Null='YES' Type='mediumtext'/>",
+          "<field Comment='' Extra='' Field='name' Key='' Null='YES' Type='varchar(100)'/>",
+          "<field Comment='' Extra='' Field='uid' Key='' Null='NO' Type='varchar(16)'/>",
+      ])
+    end
+
+    it 'can insert different data' do
+      ent = @e.entity('ent')
+      expect(ent).not_to be_nil
+      ent.insert({'name' => 'Foo', 'uid' => 'A-1'})
+      ent.insert({'name' => 'Bar', 'uid' => 'B-2'})
+    end
+
+    it 'cannot insert data with same unique column value' do
+      ent = @e.entity('ent')
+      expect(ent).not_to be_nil
+      expect {
+        ent.insert({'name' => 'Baz', 'uid' => 'A-1'})
+      }.to raise_error(ArgumentError)
+    end
+  end
+
   context 'starting from empty database, connect by URL' do
     before(:all) do
       sqlclear
