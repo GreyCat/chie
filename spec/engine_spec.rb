@@ -268,7 +268,6 @@ describe Engine do
         {
           'name' => 'uid',
           'type' => 'str',
-          'mand' => true,
           'ind' => true,
           'uniq' => true,
           'len' => 16,
@@ -292,7 +291,7 @@ describe Engine do
           "<field Comment='' Extra='auto_increment' Field='_id' Key='PRI' Null='NO' Type='int(11)'/>",
           "<field Comment='' Extra='' Field='_data' Key='' Null='YES' Type='mediumtext'/>",
           "<field Comment='' Extra='' Field='name' Key='' Null='YES' Type='varchar(100)'/>",
-          "<field Comment='' Extra='' Field='uid' Key='' Null='NO' Type='varchar(16)'/>",
+          "<field Comment='' Extra='' Field='uid' Key='UNI' Null='YES' Type='varchar(16)'/>",
       ])
     end
 
@@ -308,7 +307,7 @@ describe Engine do
       expect(ent).not_to be_nil
       expect {
         ent.insert({'name' => 'Baz', 'uid' => 'A-1'})
-      }.to raise_error(ArgumentError)
+      }.to raise_error(Mysql2::Error)
     end
   end
 

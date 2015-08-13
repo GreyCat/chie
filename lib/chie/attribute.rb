@@ -17,6 +17,7 @@ module Chie
 
       @mandatory = h['mand'] || false
       @indexed = h['ind'] || false
+      @unique = h['uniq'] || false
     end
 
     def title
@@ -29,6 +30,10 @@ module Chie
 
     def indexed?
       @indexed
+    end
+
+    def unique?
+      @unique
     end
 
     # ========================================================================
@@ -47,6 +52,7 @@ module Chie
       h['values'] = @values if @values
       h['unit'] = @unit if @unit
       h['opt'] = @opt if @opt
+      h['uniq'] = @unique if @unique
 
       h.to_json(opt)
     end
