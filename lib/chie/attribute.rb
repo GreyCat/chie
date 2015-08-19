@@ -59,8 +59,8 @@ module Chie
 
     def as_sql_type
       case @type
-      when 'str', 'password', 'img'
-        len = @len || 256
+      when 'str', 'password', 'img', 'url'
+        len = @len || (@type == 'url' ? 1024 : 256)
         "VARCHAR(#{len})"
       when 'int', 'set', 'enum'
         'INT'
@@ -79,7 +79,7 @@ module Chie
       return 'NULL' if v.nil?
 
       case @type
-      when 'str', 'text', 'password', 'img'
+      when 'str', 'text', 'password', 'img', 'url'
         "'#{db.escape(v)}'"
       when 'int', 'set', 'enum', 'float', 'bool'
         v
@@ -94,7 +94,7 @@ module Chie
     # even non-existent for some. "data" is non-nil.
     def check_value_empty(data)
       case @type
-      when 'str', 'text', 'password', 'img'
+      when 'str', 'text', 'password', 'img', 'url'
         data.empty?
       when 'int', 'float', 'enum'
         # These values are always non-empty
@@ -116,7 +116,7 @@ module Chie
       return nil if v.nil?
 
       case @type
-      when 'str', 'text', 'int', 'float', 'password', 'bool', 'img'
+      when 'str', 'text', 'int', 'float', 'password', 'bool', 'img', 'url'
         v
       when 'enum'
         @values[v]
