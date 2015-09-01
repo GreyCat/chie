@@ -4,14 +4,16 @@ module Chie
 
     def initialize(h)
       @name = h['name']
-      raise "Invalid attribute #{h.inspect}: no name" unless @name
+      raise InvalidSchema.new("Invalid attribute #{h.inspect}: no name") unless @name
       @type = h['type']
-      raise "Invalid attribute #{h.inspect}: no type" unless @type
+      raise InvalidSchema.new("Invalid attribute #{h.inspect}: no type") unless @type
 
       @title = h['title']
 
       @len = h['len']
       @values = h['values']
+      raise InvalidSchema.new("Set attribute #{h.inspect} has >64 values") if @type == 'set' and @values.size > 64
+
       @unit = h['unit']
       @opt = h['opt']
 

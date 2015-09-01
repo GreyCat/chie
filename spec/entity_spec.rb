@@ -427,8 +427,8 @@ describe Entity do
     end
 
     it 'refuses to create entity with way too big set field' do
-      big_set_ent = Entity.new('big_set_ent', INVALID_SET_SCHEME)
       expect {
+        big_set_ent = Entity.new('big_set_ent', INVALID_SET_SCHEME)
         @e.entity_create(big_set_ent)
       }.to raise_error(InvalidSchema)
     end
