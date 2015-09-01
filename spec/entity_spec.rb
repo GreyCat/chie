@@ -407,10 +407,17 @@ describe Entity do
   end
 
   context 'set fields handling' do
-    SET_SCHEME = {
+    VALID_SET_SCHEME = {
       'attr' => [
         {'name' => 'name', 'type' => 'str', 'ind' => true},
-        {'name' => 'items', 'type' => 'set', 'values' => (1..128).map { |i| sprintf("v%05d", i) }, 'ind' => true},
+        {'name' => 'items', 'type' => 'set', 'values' => (1..64).map { |i| sprintf("v%05d", i) }, 'ind' => true},
+      ]
+    }
+
+    INVALID_SET_SCHEME = {
+      'attr' => [
+        {'name' => 'name', 'type' => 'str', 'ind' => true},
+        {'name' => 'items', 'type' => 'set', 'values' => (1..65).map { |i| sprintf("v%05d", i) }, 'ind' => true},
       ]
     }
 
@@ -419,8 +426,15 @@ describe Entity do
       @e = Engine.new(CREDENTIALS)
     end
 
+    it 'refuses to create entity with way too big set field' do
+      big_set_ent = Entity.new('big_set_ent', INVALID_SET_SCHEME)
+      expect {
+        @e.entity_create(big_set_ent)
+      }.to raise_error(InvalidSchema)
+    end
+
     it 'can create entity with set field' do
-      @set_ent = Entity.new('set_ent', SET_SCHEME)
+      @set_ent = Entity.new('set_ent', VALID_SET_SCHEME)
       @e.entity_create(@set_ent)
     end
 
