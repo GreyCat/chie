@@ -410,7 +410,7 @@ describe Entity do
     SET_SCHEME = {
       'attr' => [
         {'name' => 'name', 'type' => 'str', 'ind' => true},
-        {'name' => 'items', 'type' => 'set', 'values' => (1..128).map { |i| "v#{i}" }, 'ind' => true},
+        {'name' => 'items', 'type' => 'set', 'values' => (1..128).map { |i| sprintf("v%05d", i) }, 'ind' => true},
       ]
     }
 
@@ -419,16 +419,30 @@ describe Entity do
       @e = Engine.new(CREDENTIALS)
     end
 
-    it 'can insert and retrieve every single individual value' do
+    it 'can create entity with set field' do
       @set_ent = Entity.new('set_ent', SET_SCHEME)
       @e.entity_create(@set_ent)
+    end
 
-      vmax = @set_ent.attr!('items').values.size
-      vmax.times { |i|
-        id = @set_ent.insert('items' => (1 << i))
+    it 'can insert and retrieve every single individual value' do
+      @set_ent = @e.entity!('set_ent')
+      items = @set_ent.attr!('items')
+
+      items.values.each_with_index { |str_val, i|
+        id = @set_ent.insert('name' => str_val, 'items' => (1 << i))
         rec = @set_ent.get(id)
-        v = @set_ent.attr!('items').value_resolve(rec['items'])
-        expect(v).to eq(["v#{i + 1}"])
+        v = items.value_resolve(rec['items'])
+        expect(v).to eq([str_val])
+      }
+    end
+
+    it 'can retrieve values using #list' do
+      @set_ent = @e.entity!('set_ent')
+      items = @set_ent.attr!('items')
+
+      @set_ent.list(:fields => ['name', 'items']).each { |rec|
+        v = items.value_resolve(rec['items'])
+        expect(v).to eq([rec['name']])
       }
     end
   end
