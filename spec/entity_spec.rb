@@ -406,6 +406,33 @@ describe Entity do
     end
   end
 
+  context 'set fields handling' do
+    SET_SCHEME = {
+      'attr' => [
+        {'name' => 'name', 'type' => 'str', 'ind' => true},
+        {'name' => 'items', 'type' => 'set', 'values' => (1..128).map { |i| "v#{i}" }, 'ind' => true},
+      ]
+    }
+
+    before(:all) do
+      sqlclear
+      @e = Engine.new(CREDENTIALS)
+    end
+
+    it 'can insert and retrieve every single individual value' do
+      @set_ent = Entity.new('set_ent', SET_SCHEME)
+      @e.entity_create(@set_ent)
+
+      vmax = @set_ent.attr!('items').values.size
+      vmax.times { |i|
+        id = @set_ent.insert('items' => (1 << i))
+        rec = @set_ent.get(id)
+        v = @set_ent.attr!('items').value_resolve(rec['items'])
+        expect(v).to eq(["v#{i + 1}"])
+      }
+    end
+  end
+
   context 'header fields handling' do
     INVALID_SCHEME = {
       'attr' => [
