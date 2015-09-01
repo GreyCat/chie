@@ -62,8 +62,10 @@ module Chie
       when 'str', 'password', 'img', 'url'
         len = @len || (@type == 'url' ? 1024 : 256)
         "VARCHAR(#{len})"
-      when 'int', 'set', 'enum'
+      when 'int', 'enum'
         'INT'
+      when 'set'
+        'BIGINT UNSIGNED'
       when 'float'
         'DOUBLE'
       when 'text'
