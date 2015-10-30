@@ -160,6 +160,42 @@ describe Entity do
     expect(@book.list(page: 1, per_page: 10).count).to eq(2)
   end
 
+  describe :find_by do
+    it 'gets a record by name' do
+      r = @book.find_by({'name' => SIMPLE_RECORD['name']})
+      expect(r).to be_kind_of(Record)
+    end
+
+    it 'gets nil when asked for bogus record' do
+      r = @book.find_by({'name' => 'foo'})
+      expect(r).to be_nil
+    end
+
+    it 'gets some record when asked for too many records' do
+      r = @book.find_by({})
+      expect(r).to be_kind_of(Record)
+    end
+  end
+
+  describe :find_by! do
+    it 'gets a record by name' do
+      r = @book.find_by!({'name' => SIMPLE_RECORD['name']})
+      expect(r).to be_kind_of(Record)
+    end
+
+    it 'fails when asked for bogus record' do
+      expect {
+        @book.find_by!({'name' => 'foo'})
+      }.to raise_error(NotFound)
+    end
+
+    it 'fails when asked for too many records' do
+      expect {
+        @book.find_by!({})
+      }.to raise_error(TooManyFound)
+    end
+  end
+
   context 'book->source relation' do
     SOURCE_SCHEME = {
       'attr' => [

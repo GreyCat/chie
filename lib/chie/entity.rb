@@ -15,6 +15,7 @@ module Chie
   end
 
   class NotFound < Exception; end
+  class TooManyFound < Exception; end
   class InvalidSchema < Exception; end
 
   class Entity
@@ -180,6 +181,33 @@ module Chie
       }
 
       raise NotFound.new("Invalid query result returned from getting data on ID=#{id}")
+    end
+
+    ##
+    # Finds exactly one record that satisfies given where phrase.
+    #
+    # @return [Record, nil] first one of all the records found or nil
+    # if no records were found
+    def find_by(where)
+      list(where: where).first
+    end
+
+    ##
+    # Finds exactly one record that satisfies given where phrase.
+    # Throws an expection if no records were found or more than 1
+    # record satisfies given where phrase.
+    #
+    # @return [Record] a record
+    def find_by!(where)
+      r = list(where: where)
+      case r.count
+      when 0
+        raise NotFound.new("No record found that matches #{where.inspect}")
+      when 1
+        return r.first
+      else
+        raise TooManyFound.new("Too many records satisfy #{where.inspect}")
+      end
     end
 
     ##
