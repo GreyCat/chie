@@ -19,6 +19,16 @@ module Chie
       @result.map { |x| Record.new(x) }
     end
 
+    def first
+      r = @result.first
+      r.nil? ? nil : Record.new(r)
+    end
+
+    def last
+      r = @result.last
+      r.nil? ? nil : Record.new(r)
+    end
+
     def current_page
       @opt[:page]
     end
