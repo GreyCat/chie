@@ -79,9 +79,29 @@ describe Entity do
     SIMPLE_RECORD_2.each_pair { |k, v| expect(rec[k]).to eq(v) }
   end
 
-  it 'can see two distinct versions of our record' do
-    hist = @book.history_list(1)
-    expect(hist.size).to eq(2)
+  describe '#history_list' do
+    it 'lists two distinct versions of our record' do
+      hist = @book.history_list(1).to_a
+      expect(hist.size).to eq(2)
+    end
+
+    it 'fetches only one history entry if requested' do
+      hist = @book.history_list(1, page: 1, per_page: 1).to_a
+      expect(hist.size).to eq(1)
+    end
+
+    it 'should be not make new history entry when saving the same record twice' do
+      @book.update(1, SIMPLE_RECORD_2)
+      hist = @book.history_list(1)
+      expect(hist.size).to eq(2)
+    end
+
+    it 'can update record with result of get() with no new history entry' do
+      rec = @book.get(1)
+      @book.update(1, rec)
+      hist = @book.history_list(1)
+      expect(hist.size).to eq(2)
+    end
   end
 
   it 'can get record in version #1' do
@@ -89,19 +109,6 @@ describe Entity do
     expect(hist['name']).to eq(SIMPLE_RECORD['name'])
     expect(hist['yr']).to eq(SIMPLE_RECORD['yr'])
     expect(hist['_ts']).to be_kind_of(Time)
-  end
-
-  it 'should be not make new history entry when saving the same record twice' do
-    @book.update(1, SIMPLE_RECORD_2)
-    hist = @book.history_list(1)
-    expect(hist.size).to eq(2)
-  end
-
-  it 'can update record with result of get() with no new history entry' do
-    rec = @book.get(1)
-    @book.update(1, rec)
-    hist = @book.history_list(1)
-    expect(hist.size).to eq(2)
   end
 
   USER_ID = 1234

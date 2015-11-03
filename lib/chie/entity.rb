@@ -260,9 +260,25 @@ module Chie
       @db.query("SELECT _id, name FROM `#{@name}` WHERE name LIKE '%#{query}%';")
     end
 
-    def history_list(id)
+    ##
+    # Gets a list of historical states of a given record. Default
+    # invocation lists all possible records.
+    #
+    # @param [Fixnum] id identifier of a record to investigate
+    # @param [Hash] opt additional options to filter output
+    # @option opt [Fixnum] (nil) :page output only records on
+    # specified page of pages, each containing `per_page` records;
+    # first page is #1; disabled by default, thus returning all
+    # records
+    # @option opt [Fixnum] (10) :per_page number of records to output
+    # on one page, used only if `:page` parameter is used
+    def history_list(id, opt = {})
       validate_id(id)
-      @db.query("SELECT hid, ts, user_id FROM `#{@name}_h` WHERE _id=#{id};")
+
+      opt2 = {}
+      limit_phrase = ListQuery.parse_page_opts(opt, opt2)
+
+      @db.query("SELECT hid, ts, user_id FROM `#{@name}_h` WHERE _id=#{id}#{limit_phrase};")
     end
 
     def history_get(hid)
