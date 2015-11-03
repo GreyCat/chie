@@ -22,20 +22,26 @@ module Chie
 
       @opt2 = {}
 
-      if @opt[:page]
-        per_page = @opt[:per_page].to_i || 10
-        @opt2[:per_page] = per_page
-
+      limit_phrase = ListQuery.parse_page_opts(@opt, @opt2)
+      if limit_phrase
+        q << limit_phrase
         @db.query("SELECT COUNT(*) AS cnt FROM #{tables} #{where_phrase}").each { |row|
           @opt2[:total_count] = row['cnt']
         }
-
-        @opt2[:page] = @opt[:page].to_i
-        @opt2[:page] = 1 if @opt2[:page] < 1
-        q << " LIMIT #{(@opt2[:page] - 1) * per_page}, #{per_page}"
       end
 
       return q
+    end
+
+    def self.parse_page_opts(opt, opt2)
+      return nil unless opt[:page]
+
+      per_page = opt[:per_page].to_i || 10
+      opt2[:per_page] = per_page
+
+      opt2[:page] = opt[:page].to_i
+      opt2[:page] = 1 if opt2[:page] < 1
+      " LIMIT #{(opt2[:page] - 1) * per_page}, #{per_page}"
     end
 
     def run
