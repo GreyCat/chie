@@ -40,7 +40,14 @@ module Chie
     def initialize(cred)
       if cred.is_a?(String)
         uri = URI.parse(cred)
-        raise "Chie is (yet) unable to work with '#{uri.scheme}', it supports only 'mysql2' so far" unless uri.scheme == 'mysql2'
+
+        case uri.scheme
+        when 'mysql', 'mysql2'
+          # fine, that'll do
+        else
+          raise "Chie is (yet) unable to work with '#{uri.scheme}', it supports only 'mysql' and 'mysql2' so far"
+        end
+
         cred = {
           :host => uri.host,
           :port => uri.port,
