@@ -54,8 +54,9 @@ describe Entity do
         'yr' => 1234,
     })
 
-    # FIXME: details about exception
-    expect { @book.instance_eval { parse_data_with_schema({'foo' => 1234}) } }.to raise_error
+    expect {
+      @book.instance_eval { generate_sql_columns({'foo' => 1234}) }
+    }.to raise_error(ArgumentError)
   end
 
   it 'can insert simple record in a given entity anonymously' do
