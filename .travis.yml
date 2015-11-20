@@ -1,0 +1,15 @@
+language: ruby
+sudo: false
+rvm:
+  - 2.2.3
+  - 1.9.3
+before_script:
+  - mysqladmin create chie_test
+  - echo "GRANT ALL PRIVILEGES ON chie_test.* TO chie_test@localhost IDENTIFIED WITH 'chie_test'" | mysql -uroot
+script:
+  - rspec
+addons:
+  apt:
+    packages:
+      - mysql-server
+      - mysql-client
