@@ -13,3 +13,5 @@ addons:
     packages:
       - mysql-server
       - mysql-client
+  code_climate:
+    repo_token: efaaf87d81fd35f1e999bcd0165a4d36ea9ac486fd92f62a22310959765c88b7
