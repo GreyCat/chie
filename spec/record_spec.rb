@@ -47,6 +47,18 @@ describe Record do
     end
   end
 
+  describe '#id' do
+    it 'gets database ID of a record' do
+      expect(@book_rec.id).to eq(@book_rec_id)
+    end
+  end
+
+  describe '#header' do
+    it 'gets generated "header" field representation for a record' do
+      expect(@book_rec.header).to eq('Foo book')
+    end
+  end
+
   describe '#[attr]' do
     it 'gets scalar value in indexed column' do
       expect(@book_rec['name']).to eq('Foo book')

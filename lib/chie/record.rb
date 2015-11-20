@@ -25,6 +25,12 @@ module Chie
     end
 
     ##
+    # Gets a database ID of a particular record.
+    def id
+      @result['_id']
+    end
+
+    ##
     # Gets a string sum of header fields for a particular record,
     # prepared in "_header" calculated field.
     def header
@@ -40,7 +46,7 @@ module Chie
     end
 
     def inspect
-      {result: @result, json: data}.inspect
+      "Record(#{{result: @result, json: data}.inspect})"
     end
 
     def hash
