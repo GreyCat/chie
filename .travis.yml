@@ -5,7 +5,7 @@ rvm:
   - 1.9.3
 before_script:
   - mysqladmin create chie_test
-  - echo "GRANT ALL PRIVILEGES ON chie_test TO chie_test@localhost IDENTIFIED BY 'chie_test'" | mysql -uroot mysql
+  - echo "GRANT ALL PRIVILEGES ON chie_test TO chie_test@localhost IDENTIFIED BY 'chie_test'; FLUSH PRIVILEGES;" | mysql -uroot mysql
 script:
   - rspec
 addons:
