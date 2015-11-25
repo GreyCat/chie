@@ -246,7 +246,7 @@ module Chie
     # ========================================================================
 
     def self.validate_sql_name(s)
-      raise "Invalid SQL name: #{s.inspect}" unless s =~ /^[A-Za-z_][A-Za-z_0-9]*$/
+      raise "Invalid SQL name: #{s.inspect}" unless s =~ /^[A-Za-z_0-9]*$/
     end
 
     def sql_table_exists(name)
