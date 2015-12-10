@@ -9,6 +9,13 @@ SIMPLE_SCHEMA = {
   ]
 }
 
+RESERVED_SCHEMA = {
+  'attr' => [
+    {'name' => 'name', 'type' => 'str', 'len' => 100, 'mand' => true, 'ind' => true},
+    {'name' => 'group', 'type' => 'int', 'mand' => false, 'ind' => true},
+  ]
+}
+
 describe Engine do
   context 'starting from empty database' do
     before(:all) do
@@ -43,6 +50,18 @@ describe Engine do
 
     it 'fails when requested non-existent entity' do
       expect { @e.entity!('does_not_exist') }.to raise_error(NotFound)
+    end
+
+    it 'can create entity with SQL reserved name' do
+      @e.entity_create(Entity.new('foo', RESERVED_SCHEMA))
+
+      r = sqldump.root.elements
+      expect(r.to_a('//table_structure[@name="foo"]/field').map { |x| x.to_s }).to eq([
+          "<field Comment='' Extra='auto_increment' Field='_id' Key='PRI' Null='NO' Type='int(11)'/>",
+          "<field Comment='' Extra='' Field='_data' Key='' Null='YES' Type='mediumtext'/>",
+          "<field Comment='' Extra='' Field='name' Key='' Null='YES' Type='varchar(100)'/>",
+          "<field Comment='' Extra='' Field='group' Key='' Null='YES' Type='int(11)'/>"
+      ])
     end
   end
 
