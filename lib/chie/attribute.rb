@@ -79,6 +79,10 @@ module Chie
       end
     end
 
+    def sql_name
+      "`#{@name}`"
+    end
+
     def sql_value(db, v)
       return 'NULL' if v.nil?
 

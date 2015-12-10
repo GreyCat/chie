@@ -378,8 +378,8 @@ module Chie
         '_data MEDIUMTEXT',
       ]
       each_attr { |a|
-        lines << "#{a.name} #{a.as_sql_type}" if a.indexed?
-        lines << "UNIQUE INDEX `_uniq_#{a.name}` (#{a.name})" if a.unique?
+        lines << "#{a.sql_name} #{a.as_sql_type}" if a.indexed?
+        lines << "UNIQUE INDEX `_uniq_#{a.name}` (#{a.sql_name})" if a.unique?
       }
       each_rel { |r|
         x = r.as_sql_type
