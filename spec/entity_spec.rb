@@ -81,9 +81,10 @@ describe Entity do
   end
 
   describe '#history_list' do
-    it 'lists two distinct versions of our record' do
+    it 'lists two distinct versions of our record in proper order' do
       hist = @book.history_list(1).to_a
       expect(hist.size).to eq(2)
+      expect(hist[0]['hid']).to be > hist[1]['hid']
     end
 
     it 'fetches only one history entry if requested' do

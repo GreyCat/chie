@@ -278,7 +278,7 @@ module Chie
       opt2 = {}
       limit_phrase = ListQuery.parse_page_opts(opt, opt2)
 
-      @db.query("SELECT hid, ts, user_id FROM `#{@name}_h` WHERE _id=#{id}#{limit_phrase};")
+      @db.query("SELECT hid, ts, user_id FROM `#{@name}_h` WHERE _id=#{id} ORDER BY ts DESC, hid DESC #{limit_phrase};")
     end
 
     def history_get(hid)
