@@ -81,6 +81,7 @@ describe Engine do
     }
 
     it 'can create entity with SQL reserved name' do
+      @e = Engine.new(CREDENTIALS)
       @e.entity_create(Entity.new('reserved', RESERVED_SCHEMA))
 
       r = sqldump.root.elements
