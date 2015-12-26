@@ -507,9 +507,9 @@ module Chie
       return res
     end
 
-    def resolve_relations(h)
+    def resolve_relations(data)
       each_rel { |r|
-        v = h[r.name]
+        v = data[r.name]
         next if v.nil? or (v.respond_to?(:empty?) and v.empty?)
 
         tgt_ent = @engine.entity(r.target)
@@ -519,14 +519,18 @@ module Chie
 
         # Resolve all related entities' IDs with names
         resolved = []
-        @db.query("SELECT _id, #{tgt_ent.sql_header_field} FROM `#{r.target}` WHERE _id IN (#{v.join(',')});").each { |row|
-          resolved << {
+        fields = ['_id', tgt_ent.sql_header_field]
+        fields << '_url' if tgt_ent.attr('_url')
+        @db.query("SELECT #{fields.join(',')} FROM `#{r.target}` WHERE _id IN (#{v.join(',')});").each { |row|
+          h = {
             '_id' => row['_id'],
             '_header' => row['_header'],
           }
+          h['_url'] = row['_url'] if row['_url']
+          resolved << h
         }
 
-        h[r.name] = resolved
+        data[r.name] = resolved
       }
     end
 
