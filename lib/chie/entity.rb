@@ -257,7 +257,7 @@ module Chie
 
     def list_by_name(query)
       query = @db.escape(query)
-      @db.query("SELECT _id, name FROM `#{@name}` WHERE name LIKE '%#{query}%';")
+      @db.query("SELECT _id, #{sql_header_field} AS _header FROM `#{@name}` WHERE name LIKE '%#{query}%';")
     end
 
     ##
