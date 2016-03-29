@@ -22,11 +22,18 @@ describe ListQuery do
     @entity.insert({'name' => 'Charlie', 'yr' => 1980})
     @entity.insert({'name' => 'Delta', 'yr' => 1983})
     @entity.insert({'name' => 'Echo', 'yr' => 1989})
+    @entity.insert({'name' => 'Foxtrot', 'yr' => 2000})
+    @entity.delete(6)
   end
 
   it 'can run request without arguments' do
     q = ListQuery.new(@db, @entity, {})
     expect(q.run.count).to eq(5)
+  end
+
+  it 'can run request without filtering, allowing deleted' do
+    q = ListQuery.new(@db, @entity, deleted: true)
+    expect(q.run.count).to eq(6)
   end
 
   it 'can list by exact name' do
@@ -56,15 +63,15 @@ describe ListQuery do
 
   it 'can do match against ranges' do
     q = ListQuery.new(@db, @entity, where: {'yr' => (1980..1985)})
-    expect(q.where_phrase).to eq('WHERE `yr` BETWEEN 1980 AND 1985')
+    expect(q.where_phrase).to eq('WHERE `yr` BETWEEN 1980 AND 1985 AND `book`._deleted=0')
     expect(q.run.count).to eq(2)
 
     q = ListQuery.new(@db, @entity, where: {'yr' => (1980..Float::INFINITY)})
-    expect(q.where_phrase).to eq('WHERE `yr` >= 1980')
+    expect(q.where_phrase).to eq('WHERE `yr` >= 1980 AND `book`._deleted=0')
     expect(q.run.count).to eq(4)
 
     q = ListQuery.new(@db, @entity, where: {'yr' => (-Float::INFINITY..1980)})
-    expect(q.where_phrase).to eq('WHERE `yr` <= 1980')
+    expect(q.where_phrase).to eq('WHERE `yr` <= 1980 AND `book`._deleted=0')
     expect(q.run.count).to eq(2)
 
     q = ListQuery.new(@db, @entity, where: {'yr' => (-Float::INFINITY..Float::INFINITY)})
@@ -73,7 +80,7 @@ describe ListQuery do
 
   it 'can do IN matches against multiple values' do
     q = ListQuery.new(@db, @entity, where: {'yr' => ['IN', [1980, 1982, 1983]]})
-    expect(q.where_phrase).to eq('WHERE `yr` IN (1980,1982,1983)')
+    expect(q.where_phrase).to eq('WHERE `yr` IN (1980,1982,1983) AND `book`._deleted=0')
     expect(q.run.count).to eq(2)
   end
 

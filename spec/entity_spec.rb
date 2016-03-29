@@ -72,10 +72,12 @@ describe Entity do
 
   it "can't insert record with invalid fields" do
     expect { @book.insert({'foo' => 1234}) }.to raise_error(ArgumentError)
+    expect(@book.count).to eq(1)
   end
 
   it 'can modify record' do
     @book.update(1, SIMPLE_RECORD_2)
+    expect(@book.count).to eq(1)
     rec = @book.get(1)
     SIMPLE_RECORD_2.each_pair { |k, v| expect(rec[k]).to eq(v) }
   end
@@ -202,6 +204,15 @@ describe Entity do
       expect {
         @book.find_by!({})
       }.to raise_error(TooManyFound)
+    end
+  end
+
+  describe :delete do
+    it 'can mark a record as deleted' do
+      expect(@book.count).to eq(2)
+      @book.delete(1)
+      expect(@book.count).to eq(1)
+      expect(@book.get(1)['_deleted']).to eq(1)
     end
   end
 
@@ -430,7 +441,7 @@ describe Entity do
 
       # Check the query first
       lq = ListQuery.new(@db, @book, opt)
-      expect(lq.query).to eq("SELECT *,`book`.`name` AS _header,`book`._data AS _data_0 FROM `book` LEFT JOIN `author` ON `book`.`_id`=`author`.`book` WHERE `author`.`person` = 1 ORDER BY `book`.`name`")
+      expect(lq.query).to eq("SELECT *,`book`.`name` AS _header,`book`._data AS _data_0 FROM `book` LEFT JOIN `author` ON `book`.`_id`=`author`.`book` WHERE `author`.`person` = 1 AND `book`._deleted=0 ORDER BY `book`.`name`")
 
       # Check that it works
       @book.list(opt).each { |rec|

@@ -94,8 +94,6 @@ module Chie
     def generate_where_phrase
       opt_where = @opt[:where]
 
-      return '' if opt_where.nil? or opt_where.empty?
-
       where = []
       opt_where.each_pair { |k, v|
         a = @entity.attr(k)
@@ -118,7 +116,11 @@ module Chie
         end
 
         where << wh if wh
-      }
+      } if opt_where
+
+      unless @opt[:deleted]
+        where << "`#{@entity.name}`._deleted=0"
+      end
 
       @where_phrase = where.empty? ? '' : "WHERE #{where.join(' AND ')}"
     end
