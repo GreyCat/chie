@@ -346,6 +346,17 @@ module Chie
       # TODO: end transaction here
     end
 
+    ##
+    # Updates the record with given ID to state that it's
+    # deleted. This record would no longer appear in #count or in
+    # #list call results, unless using special parameters to count or
+    # list deleted records too.
+    def delete(id, user = nil, time = nil)
+      data = get(id)
+      data['_deleted'] = 1
+      update(id, data, user, time)
+    end
+
     # ========================================================================
 
     def to_json(opt = nil)
@@ -375,6 +386,8 @@ module Chie
       lines = [
         '_id INT NOT NULL AUTO_INCREMENT',
         'PRIMARY KEY (_id)',
+        '_deleted TINYINT(1) NOT NULL DEFAULT 0',
+        'INDEX _idx_deleted (_deleted)',
         '_data MEDIUMTEXT',
       ]
       each_attr { |a|
@@ -488,8 +501,10 @@ module Chie
       res = {
         '_data' => "'#{@db.escape(data.to_json)}'",
       }
+      res['_deleted'] = data['_deleted'] unless data['_deleted'].nil?
 
       data.each_pair { |k, v|
+        next if k == '_deleted'
         rel = @rel_by_name[k]
         attr = @attr_by_name[k]
 
