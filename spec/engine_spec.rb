@@ -29,6 +29,7 @@ describe Engine do
       r = sqldump.root.elements
       expect(r.to_a('//table_structure[@name="book"]/field').map { |x| x.to_s }).to eq([
           "<field Comment='' Extra='auto_increment' Field='_id' Key='PRI' Null='NO' Type='int(11)'/>",
+          "<field Comment='' Default='0' Extra='' Field='_deleted' Key='MUL' Null='NO' Type='tinyint(1)'/>",
           "<field Comment='' Extra='' Field='_data' Key='' Null='YES' Type='mediumtext'/>",
           "<field Comment='' Extra='' Field='name' Key='' Null='YES' Type='varchar(100)'/>",
           "<field Comment='' Extra='' Field='yr' Key='' Null='YES' Type='int(11)'/>"
@@ -87,6 +88,7 @@ describe Engine do
       r = sqldump.root.elements
       expect(r.to_a('//table_structure[@name="reserved"]/field').map { |x| x.to_s }).to eq([
           "<field Comment='' Extra='auto_increment' Field='_id' Key='PRI' Null='NO' Type='int(11)'/>",
+          "<field Comment='' Default='0' Extra='' Field='_deleted' Key='MUL' Null='NO' Type='tinyint(1)'/>",
           "<field Comment='' Extra='' Field='_data' Key='' Null='YES' Type='mediumtext'/>",
           "<field Comment='' Extra='' Field='name' Key='' Null='YES' Type='varchar(100)'/>",
           "<field Comment='' Extra='' Field='group' Key='' Null='YES' Type='int(11)'/>"
@@ -119,6 +121,7 @@ describe Engine do
       r = sqldump.root.elements
       expect(r.to_a('//table_structure[@name="series"]/field').map { |x| x.to_s }).to eq([
           "<field Comment='' Extra='auto_increment' Field='_id' Key='PRI' Null='NO' Type='int(11)'/>",
+          "<field Comment='' Default='0' Extra='' Field='_deleted' Key='MUL' Null='NO' Type='tinyint(1)'/>",
           "<field Comment='' Extra='' Field='_data' Key='' Null='YES' Type='mediumtext'/>",
           "<field Comment='' Extra='' Field='name' Key='' Null='YES' Type='varchar(100)'/>",
       ])
@@ -247,6 +250,7 @@ describe Engine do
       r = sqldump.root.elements
       expect(r.to_a('//table_structure[@name="ent"]/field').map { |x| x.to_s }).to eq([
           "<field Comment='' Extra='auto_increment' Field='_id' Key='PRI' Null='NO' Type='int(11)'/>",
+          "<field Comment='' Default='0' Extra='' Field='_deleted' Key='MUL' Null='NO' Type='tinyint(1)'/>",
           "<field Comment='' Extra='' Field='_data' Key='' Null='YES' Type='mediumtext'/>",
           "<field Comment='' Extra='' Field='name' Key='' Null='YES' Type='varchar(100)'/>",
           "<field Comment='' Extra='' Field='str_ind' Key='' Null='YES' Type='varchar(500)'/>"
@@ -311,6 +315,7 @@ describe Engine do
       r = sqldump.root.elements
       expect(r.to_a('//table_structure[@name="ent"]/field').map { |x| x.to_s }).to eq([
           "<field Comment='' Extra='auto_increment' Field='_id' Key='PRI' Null='NO' Type='int(11)'/>",
+          "<field Comment='' Default='0' Extra='' Field='_deleted' Key='MUL' Null='NO' Type='tinyint(1)'/>",
           "<field Comment='' Extra='' Field='_data' Key='' Null='YES' Type='mediumtext'/>",
           "<field Comment='' Extra='' Field='name' Key='' Null='YES' Type='varchar(100)'/>",
           "<field Comment='' Extra='' Field='uid' Key='UNI' Null='YES' Type='varchar(16)'/>",
