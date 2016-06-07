@@ -172,4 +172,11 @@ describe ListQuery do
     expect(q.count).to eq(1)
     expect(q.run.map { |row| row['_header'] }).to eq(['Alice Alpha'])
   end
+
+  it 'lists related entities using header fields w/o explicit resolve' do
+    q = ListQuery.new(@db, @entity_person, where: {'surname' => 'Alice'})
+    expect(q.tables).to eq('`person` LEFT JOIN `book` ON `person`.`favorite`=`book`._id')
+    expect(q.count).to eq(1)
+    expect(q.run.map { |row| row['_header'] }).to eq(['Alice Alpha'])
+  end
 end

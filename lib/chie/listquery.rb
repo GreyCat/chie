@@ -72,10 +72,18 @@ module Chie
 
     def generate_fields
       @fields = @opt[:fields] || ['*']
+      # TODO: do proper parsing of given field specifications, not just relay them directly into SQL
+
       @fields << @entity.sql_header_field
 
       # Make sure that main entity's JSON data column is always available
       @fields << "`#{@entity.name}`._data AS _data_0"
+
+      # Check if we need to force joins
+      @need_joins = false
+      @entity.header.each { |a|
+        @need_joins = true if a.is_a?(Array)
+      }
     end
 
     ##
@@ -190,7 +198,7 @@ module Chie
     # in all related entities.
     def generate_tables
       @tables = "`#{@entity.name}`"
-      return unless @opt[:resolve]
+      return unless @opt[:resolve] or @need_joins
 
       @entity.each_rel { |r|
         raise "Unable to resolve in list (yet?) if multi-relations are present" if r.multi?
