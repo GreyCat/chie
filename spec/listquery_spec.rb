@@ -165,7 +165,7 @@ describe ListQuery do
   it 'lists related entities using header fields' do
     q = ListQuery.new(@db, @entity_person, {
       where: {'surname' => 'Alice'},
-      resolve: true,                        
+      resolve: true,
     })
     expect(q.tables).to eq('`person` LEFT JOIN `book` ON `person`.`favorite`=`book`._id')
 #    expect(q.query).to eq('___')
