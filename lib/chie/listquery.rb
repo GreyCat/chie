@@ -155,6 +155,12 @@ module Chie
         # otherwise try [operator, value] array match
         if v[0] == 'IN'
           raise "IN value #{v[1].inspect} is expected to be an array" unless v[1].is_a?(Array)
+
+          # special handling of empty lists of valid values: it means
+          # that condition should absolutely evaluate to "false"; "1=0"
+          # is a quick and portable way SQL to specify "false"
+          return '1=0' if v[1].empty?
+
           vv_arr = v[1].map { |x| @engine.escape_value(x) }
           op = 'IN'
           vv = "(#{vv_arr.join(',')})"

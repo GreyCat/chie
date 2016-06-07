@@ -84,6 +84,12 @@ describe ListQuery do
     expect(q.run.count).to eq(2)
   end
 
+  it 'can do IN matches against empty lists' do
+    q = ListQuery.new(@db, @entity, where: {'yr' => ['IN', []]})
+    expect(q.where_phrase).to eq('WHERE 1=0 AND `book`._deleted=0')
+    expect(q.run.count).to eq(0)
+  end
+
   it 'can do group counts for a given attribute' do
     q = ListQuery.new(@db, @entity)
     g = q.group_count('yr')
