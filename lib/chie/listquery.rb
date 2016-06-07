@@ -194,7 +194,7 @@ module Chie
 
       @entity.each_rel { |r|
         raise "Unable to resolve in list (yet?) if multi-relations are present" if r.multi?
-        @tables << " LEFT JOIN `#{r.target}` ON `#{@name}`.`#{r.name}`=`#{r.target}`._id"
+        @tables << " LEFT JOIN `#{r.target}` ON `#{@entity.name}`.`#{r.name}`=`#{r.target}`._id"
       }
     end
 
@@ -216,7 +216,16 @@ module Chie
           end
         }.join(',')
       else
-        @order_by = @entity.header.map { |x| "`#{@entity.name}`.`#{x.name}`" }.join(',')
+        @order_by = @entity.header.map { |x| fieldspec2sql(x) }.join(',')
+      end
+    end
+
+    def fieldspec2sql(x)
+      if x.is_a?(Array)
+        rel, attr_name = x
+        "`#{rel.target}`.`#{attr_name}`"
+      else
+        "`#{@entity.name}`.`#{x.name}`"
       end
     end
   end

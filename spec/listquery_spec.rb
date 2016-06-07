@@ -9,11 +9,25 @@ SCHEME = {
   ]
 }
 
+SCHEME_PERSON = {
+  'attr' => [
+    {'name' => 'surname', 'type' => 'str', 'ind' => true},
+  ],
+  'rel' => [
+    {'name' => 'favorite', 'target' => 'book', 'type' => '01'},
+  ],
+  'header' => [
+    'surname',
+    'favorite.name',
+  ]
+}
+
 describe ListQuery do
   before(:all) do
     sqlclear
     @engine = Engine.new(CREDENTIALS)
     @db = @engine.instance_eval('@db')
+
     @entity = Entity.new('book', SCHEME)
     @engine.entity_create(@entity)
 
@@ -24,6 +38,13 @@ describe ListQuery do
     @entity.insert({'name' => 'Echo', 'yr' => 1989})
     @entity.insert({'name' => 'Foxtrot', 'yr' => 2000})
     @entity.delete(6)
+
+    @entity_person = Entity.new('person', SCHEME_PERSON)
+    @engine.entity_create(@entity_person)
+
+    @entity_person.insert({'surname' => 'Alice', 'favorite' => 1})
+    @entity_person.insert({'surname' => 'Bob', 'favorite' => 3})
+    @entity_person.insert({'surname' => 'Eve'})
   end
 
   it 'can run request without arguments' do
@@ -139,5 +160,16 @@ describe ListQuery do
   it 'orders list by arbitrary array expression' do
     q = ListQuery.new(@db, @entity, order_by: ['10000 - yr'])
     expect(q.order_by).to eq('10000 - yr')
+  end
+
+  it 'lists related entities using header fields' do
+    q = ListQuery.new(@db, @entity_person, {
+      where: {'surname' => 'Alice'},
+      resolve: true,                        
+    })
+    expect(q.tables).to eq('`person` LEFT JOIN `book` ON `person`.`favorite`=`book`._id')
+#    expect(q.query).to eq('___')
+    expect(q.count).to eq(1)
+    expect(q.run.map { |row| row['_header'] }).to eq(['Alice Alpha'])
   end
 end

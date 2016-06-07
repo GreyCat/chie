@@ -30,8 +30,8 @@ module Chie
       @name = name
       @title = h['title']
       parse_attr(h['attr'] || [])
-      parse_header(h['header'])
       parse_rel(h['rel'] || [])
+      parse_header(h['header'])
     end
 
     def parse_attr(h_attr)
@@ -56,9 +56,19 @@ module Chie
         @header = [attr]
       else
         @header = h_header.map { |a|
-          attr = @attr_by_name[a]
-          raise InvalidSchema.new("header field includes attribute #{a.inspect}, but it doesn't exist") unless attr
-          attr
+          if a =~ /^(.*?)[.](.*?)$/
+            rel_name = $1
+            attr_name = $2
+
+            rel = @rel_by_name[rel_name]
+            raise InvalidSchema.new("header field includes attribute #{a.inspect}, but relation #{rel_name.inspect} doesn't exist") unless rel
+
+            [rel, attr_name]
+          else
+            attr = @attr_by_name[a]
+            raise InvalidSchema.new("header field includes attribute #{a.inspect}, but it doesn't exist") unless attr
+            attr
+          end
         }
       end
     end
@@ -374,7 +384,14 @@ module Chie
 
       # Store "header" if it's non-default
       unless @header.size == 1 && @header.first == @attr_by_name['name']
-        h['header'] = @header.map { |x| x.name }
+        h['header'] = @header.map { |x|
+          if x.is_a?(Array)
+            rel, attr_name = x
+            "#{rel.name}.#{attr_name}"
+          else
+            x.name
+          end
+        }
       end
 
       h.to_json(opt)
@@ -409,7 +426,14 @@ module Chie
       if header.size == 1
         header_exp = "`#{@name}`.`#{header.first.name}`"
       else
-        header_fields = header.map { |a| "`#{@name}`.`#{a.name}`" }.join(",' ',")
+        header_fields = header.map { |a|
+          if a.is_a?(Array)
+            rel, attr_name = a
+            "`#{rel.target}`.`#{attr_name}`"
+          else
+            "`#{@name}`.`#{a.name}`"
+          end
+        }.join(",' ',")
         header_exp = "CONCAT(#{header_fields})"
       end
       "#{header_exp} AS _header"
