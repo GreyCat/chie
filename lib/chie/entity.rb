@@ -181,16 +181,10 @@ module Chie
 
     def get(id)
       validate_id(id)
-
-      @db.query("SELECT _data, #{sql_header_field} FROM `#{@name}` WHERE _id=#{id};").each { |row|
-        basic_json = row['_data']
-        h = JSON.load(basic_json)
-        h['_header'] = row['_header']
-        resolve_relations(h)
-        return h
-      }
-
-      raise NotFound.new("Invalid query result returned from getting data on ID=#{id}")
+      r = find_by!({'_id' => id})
+      h = r.to_h
+      resolve_relations(h)
+      h
     end
 
     ##
@@ -317,9 +311,11 @@ module Chie
     # @raise [Chie::ValidationError] if given record has missing or empty mandatory fields
     # @return [Fixnum] ID of inserted record
     def insert(data, user = nil, time = nil)
+      id = data['_id']
       canonicalize_data(data)
       check_mandatories(data)
       cols = generate_sql_columns(data)
+      cols['_id'] = id unless id.nil?
 
       real_insert(data, cols, user, time)
     end
@@ -362,7 +358,7 @@ module Chie
     # #list call results, unless using special parameters to count or
     # list deleted records too.
     def delete(id, user = nil, time = nil)
-      data = get(id)
+      data = get(id).to_h
       data['_deleted'] = 1
       update(id, data, user, time)
     end
@@ -422,18 +418,22 @@ module Chie
     # Returns SQL SELECT expression for a special column that would
     # represent all header fields properly concatenated using SQL
     # server syntax.
-    def sql_header_field
+    def sql_header_field(add_rels = true)
       if header.size == 1
         header_exp = "`#{@name}`.`#{header.first.name}`"
       else
         header_fields = header.map { |a|
           if a.is_a?(Array)
-            rel, attr_name = a
-            "`#{rel.target}`.`#{attr_name}`"
+            if add_rels
+              rel, attr_name = a
+              "`#{rel.target}`.`#{attr_name}`"
+            else
+              nil
+            end
           else
             "`#{@name}`.`#{a.name}`"
           end
-        }.join(",' ',")
+        }.reject { |x| x.nil? }.join(",' / ',")
         header_exp = "CONCAT(#{header_fields})"
       end
       "#{header_exp} AS _header"
@@ -558,7 +558,7 @@ module Chie
 
         # Resolve all related entities' IDs with names
         resolved = []
-        fields = ['_id', tgt_ent.sql_header_field]
+        fields = ['_id', tgt_ent.sql_header_field(false)]
         fields << '_url' if tgt_ent.attr('_url')
         @db.query("SELECT #{fields.join(',')} FROM `#{r.target}` WHERE _id IN (#{v.join(',')});").each { |row|
           h = {
@@ -596,6 +596,8 @@ module Chie
     def canonicalize_data(data)
       # "_header" is a synthetic field, usually derived from other fields
       data.delete('_header')
+      # "_id" is supplied separately for UPDATEs and generated / treated specially for INSERTs
+      data.delete('_id')
 
       each_rel { |r|
         vv = data[r.name]

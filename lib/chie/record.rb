@@ -10,6 +10,7 @@ module Chie
     def initialize(result)
       @result = result
       @data = nil
+      @to_h = nil
     end
 
     ##
@@ -54,7 +55,19 @@ module Chie
     end
 
     def ==(other)
-      hash == other.hash
+      if other.is_a?(Hash)
+        to_h == other
+      else
+        hash == other.hash
+      end
+    end
+
+    def to_h
+      return @to_h if @to_h
+      @to_h = @result.merge(data)
+      @to_h.delete('_data')
+      @to_h.delete('_data_0')
+      @to_h
     end
   end
 end
