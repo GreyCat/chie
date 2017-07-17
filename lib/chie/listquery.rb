@@ -45,13 +45,18 @@ module Chie
     end
 
     def run
-      q = @db.query(query)
-      RecordSet.new(q, @opt2)
+      qt = query
+      begin
+        q = @db.query(qt)
+        RecordSet.new(q, @opt2)
+      rescue Mysql2::Error => e
+        raise "SQL error #{e.inspect} during query #{qt.inspect}"
+      end
     end
 
     def count
       cnt = nil
-      @db.query("SELECT COUNT(*) AS cnt FROM `#{@entity.name}` #{where_phrase};").each { |row|
+      @db.query("SELECT COUNT(*) AS cnt FROM #{tables} #{where_phrase};").each { |row|
         cnt = row['cnt']
       }
       raise "Invalid query result returned from counting rows in #{@entity.name.inspect}" if cnt.nil?
@@ -78,6 +83,8 @@ module Chie
 
       # Make sure that main entity's JSON data column is always available
       @fields << "`#{@entity.name}`._data AS _data_0"
+
+      @fields << "`#{@entity.name}`._id AS _id_0"
 
       # Check if we need to force joins
       @need_joins = false
@@ -184,7 +191,7 @@ module Chie
         raise "Unable to parse value #{v.inspect} for field #{k.inspect}"
       end
 
-      "`#{k}` #{op} #{vv}"
+      "`#{@entity.name}`.`#{k}` #{op} #{vv}"
     end
 
     def where_entry_join_id(r, v)
@@ -202,6 +209,11 @@ module Chie
 
       @entity.each_rel { |r|
         raise "Unable to resolve in list (yet?) if multi-relations are present" if r.multi?
+
+        # FIXME: probably it's wrong to just skip self-references, but
+        # this solves self-linked table problem for now
+        next if r.target == @entity.name
+
         @tables << " LEFT JOIN `#{r.target}` ON `#{@entity.name}`.`#{r.name}`=`#{r.target}`._id"
       }
     end
