@@ -528,7 +528,7 @@ module Chie
       res['_deleted'] = data['_deleted'] unless data['_deleted'].nil?
 
       data.each_pair { |k, v|
-        next if k == '_deleted'
+        next if k == '_deleted' or k == '_id_0'
         rel = @rel_by_name[k]
         attr = @attr_by_name[k]
 
