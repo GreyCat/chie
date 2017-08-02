@@ -6,6 +6,7 @@ require 'chie/searchquery'
 module Chie
   class ValidationError < Exception
     def initialize(errs)
+      super(errs.inspect)
       @errs = errs
     end
 
@@ -193,7 +194,7 @@ module Chie
     # @return [Record, nil] first one of all the records found or nil
     # if no records were found
     def find_by(where)
-      list(where: where).first
+      list(fields: ["`#{name}`.*"], where: where).first
     end
 
     ##
@@ -203,7 +204,7 @@ module Chie
     #
     # @return [Record] a record
     def find_by!(where)
-      r = list(where: where)
+      r = list(fields: ["`#{name}`.*"], where: where)
       case r.count
       when 0
         raise NotFound.new("No record found that matches #{where.inspect}")
